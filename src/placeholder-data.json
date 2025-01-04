@@ -1,0 +1,452 @@
+[
+  {
+    "id": 1,
+    "name": "consequat Lorem",
+    "description": "Est dolor voluptate et dolor do excepteur occaecat ex occaecat pariatur. Qui labore cupidatat do sint nostrud aute laborum tempor officia amet tempor. Consectetur elit excepteur sunt cupidatat officia Lorem anim aute enim in ut occaecat ad.",
+    "price": 669.22,
+    "imageUrl": "https://placekitten.com/300/200?image=1",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.519Z"
+  },
+  {
+    "id": 2,
+    "name": "sint ea",
+    "description": "Enim anim proident incididunt cillum tempor.",
+    "price": 335.24,
+    "imageUrl": "https://placekitten.com/300/200?image=2",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.519Z"
+  },
+  {
+    "id": 3,
+    "name": "ea dolor",
+    "description": "Id aute consequat ullamco.",
+    "price": 972.65,
+    "imageUrl": "https://placekitten.com/300/200?image=3",
+    "category": "Books",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 4,
+    "name": "enim magna",
+    "description": "Consectetur pariatur Lorem anim officia. Incididunt reprehenderit esse aute eu occaecat sint enim. Officia ex id sit ut.",
+    "price": 43.81,
+    "imageUrl": "https://placekitten.com/300/200?image=4",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 5,
+    "name": "officia",
+    "description": "Est aute reprehenderit irure. Tempor dolor esse do.",
+    "price": 935.11,
+    "imageUrl": "https://placekitten.com/300/200?image=5",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 6,
+    "name": "et",
+    "description": "Aliquip excepteur ullamco consequat fugiat irure tempor officia consequat nulla officia ea aliquip. Ea cillum mollit est fugiat.",
+    "price": 293.08,
+    "imageUrl": "https://placekitten.com/300/200?image=6",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 7,
+    "name": "est non",
+    "description": "Est consequat in do nulla veniam cupidatat est Lorem eu et sit culpa fugiat. Aliqua quis amet nulla nisi non duis et cillum.",
+    "price": 482.74,
+    "imageUrl": "https://placekitten.com/300/200?image=7",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 8,
+    "name": "sit reprehenderit tempor",
+    "description": "Do ad sint adipisicing nostrud dolor.",
+    "price": 480.48,
+    "imageUrl": "https://placekitten.com/300/200?image=8",
+    "category": "Sports",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 9,
+    "name": "sit consectetur",
+    "description": "Sint qui tempor eiusmod anim mollit magna cillum adipisicing laborum culpa. Quis eu pariatur veniam.",
+    "price": 308.83,
+    "imageUrl": "https://placekitten.com/300/200?image=9",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 10,
+    "name": "amet eu cupidatat",
+    "description": "Aute officia eu ullamco fugiat culpa ut exercitation quis laboris veniam proident nulla dolor do. Excepteur laboris officia pariatur aliqua non dolor est ad laboris fugiat mollit cillum.",
+    "price": 801.3,
+    "imageUrl": "https://placekitten.com/300/200?image=10",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 11,
+    "name": "laboris cillum incididunt",
+    "description": "Incididunt mollit ad nulla amet in fugiat veniam nostrud do esse dolore ex. Ad sint nisi deserunt cillum et commodo cupidatat proident enim eu irure aliqua. Eu proident ut proident.",
+    "price": 909.12,
+    "imageUrl": "https://placekitten.com/300/200?image=11",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 12,
+    "name": "qui aute",
+    "description": "Lorem do commodo eu sint incididunt non anim exercitation est adipisicing velit consectetur reprehenderit.",
+    "price": 789.08,
+    "imageUrl": "https://placekitten.com/300/200?image=12",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 13,
+    "name": "ea",
+    "description": "Adipisicing qui tempor dolor laboris minim Lorem. Irure consectetur dolore pariatur cillum pariatur minim incididunt eu do sunt.",
+    "price": 363.41,
+    "imageUrl": "https://placekitten.com/300/200?image=13",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 14,
+    "name": "irure quis",
+    "description": "Ea et proident elit sunt nisi est officia quis voluptate dolor. Proident consectetur Lorem enim aliqua elit pariatur magna eu fugiat. Exercitation minim irure cupidatat cupidatat enim eiusmod fugiat dolore ea irure.",
+    "price": 107.43,
+    "imageUrl": "https://placekitten.com/300/200?image=14",
+    "category": "Sports",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 15,
+    "name": "officia exercitation",
+    "description": "Sint nostrud aliquip nisi magna. Mollit labore exercitation duis dolor pariatur eiusmod. Mollit tempor duis reprehenderit mollit aliquip.",
+    "price": 376.87,
+    "imageUrl": "https://placekitten.com/300/200?image=15",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 16,
+    "name": "excepteur nulla Lorem",
+    "description": "Duis sint qui ex aliquip tempor culpa aute qui deserunt sunt ut consectetur in. Culpa non Lorem excepteur pariatur do velit officia dolor sint pariatur excepteur non. Aute id officia proident sint id laboris occaecat quis et tempor minim mollit quis laborum consectetur.",
+    "price": 832.27,
+    "imageUrl": "https://placekitten.com/300/200?image=16",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 17,
+    "name": "id esse do",
+    "description": "Lorem proident officia exercitation consectetur ad culpa pariatur ad consectetur duis in eu voluptate dolor dolore. Irure excepteur duis nulla sint excepteur. Eiusmod ipsum mollit qui deserunt nisi.",
+    "price": 506.05,
+    "imageUrl": "https://placekitten.com/300/200?image=17",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 18,
+    "name": "ad nostrud fugiat",
+    "description": "Esse excepteur veniam quis enim eu deserunt commodo.",
+    "price": 453.25,
+    "imageUrl": "https://placekitten.com/300/200?image=18",
+    "category": "Books",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 19,
+    "name": "consequat ipsum ullamco",
+    "description": "Dolor nisi sunt nulla nisi veniam aute nostrud sunt anim laborum. Tempor voluptate exercitation exercitation sunt eu magna nisi irure ad dolor officia mollit proident ut exercitation.",
+    "price": 228.14,
+    "imageUrl": "https://placekitten.com/300/200?image=19",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 20,
+    "name": "do consectetur magna",
+    "description": "Consectetur deserunt in irure consectetur aute. Tempor esse laborum quis exercitation consequat elit mollit amet aliqua laborum cupidatat ad. Pariatur minim nisi eiusmod deserunt.",
+    "price": 443.84,
+    "imageUrl": "https://placekitten.com/300/200?image=20",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 21,
+    "name": "eu commodo",
+    "description": "Id incididunt proident incididunt ex occaecat officia minim. Quis officia veniam incididunt et sit magna ut pariatur enim velit nostrud enim in proident nisi.",
+    "price": 217.68,
+    "imageUrl": "https://placekitten.com/300/200?image=21",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 22,
+    "name": "veniam officia",
+    "description": "Ex veniam incididunt esse minim proident cupidatat. Cillum in magna aliqua quis pariatur do Lorem do. Aliquip elit exercitation aliqua id et nostrud aliqua laborum nisi.",
+    "price": 586.44,
+    "imageUrl": "https://placekitten.com/300/200?image=22",
+    "category": "Books",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 23,
+    "name": "magna",
+    "description": "Id deserunt amet magna deserunt. Duis ullamco tempor minim aliqua qui anim mollit magna et dolore incididunt fugiat incididunt.",
+    "price": 670.36,
+    "imageUrl": "https://placekitten.com/300/200?image=23",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 24,
+    "name": "dolor tempor",
+    "description": "Ipsum sit deserunt sit elit non consequat est nisi enim nostrud sunt.",
+    "price": 503.27,
+    "imageUrl": "https://placekitten.com/300/200?image=24",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 25,
+    "name": "elit quis",
+    "description": "Aute Lorem do commodo pariatur pariatur ex aliquip exercitation fugiat veniam cupidatat laboris eu irure.",
+    "price": 532.59,
+    "imageUrl": "https://placekitten.com/300/200?image=25",
+    "category": "Books",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 26,
+    "name": "Lorem labore",
+    "description": "Ea ipsum enim dolor esse incididunt ad nisi. Magna minim nostrud pariatur exercitation id pariatur id consectetur ullamco ex et incididunt exercitation cupidatat sit.",
+    "price": 928.19,
+    "imageUrl": "https://placekitten.com/300/200?image=26",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 27,
+    "name": "adipisicing labore et",
+    "description": "Ut tempor ad laboris adipisicing.",
+    "price": 618.74,
+    "imageUrl": "https://placekitten.com/300/200?image=27",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 28,
+    "name": "labore fugiat",
+    "description": "Aute nostrud ullamco sint.",
+    "price": 504.11,
+    "imageUrl": "https://placekitten.com/300/200?image=28",
+    "category": "Sports",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 29,
+    "name": "laborum ea esse",
+    "description": "Fugiat quis ipsum eiusmod ad. Fugiat est Lorem excepteur duis reprehenderit velit duis ullamco. Reprehenderit consectetur cupidatat adipisicing amet eiusmod in officia.",
+    "price": 762.28,
+    "imageUrl": "https://placekitten.com/300/200?image=29",
+    "category": "Books",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 30,
+    "name": "reprehenderit amet consequat",
+    "description": "Ullamco consectetur consectetur velit quis enim quis cillum excepteur cupidatat commodo fugiat sit est. Elit anim sunt quis ut elit enim minim est ad do ut pariatur eiusmod.",
+    "price": 712.15,
+    "imageUrl": "https://placekitten.com/300/200?image=30",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 31,
+    "name": "adipisicing",
+    "description": "Enim ex eiusmod cillum adipisicing. Ut ut nisi cillum anim irure.",
+    "price": 118.48,
+    "imageUrl": "https://placekitten.com/300/200?image=31",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 32,
+    "name": "fugiat",
+    "description": "Excepteur ut est velit anim exercitation ea nisi. Ut ullamco ex dolor magna esse reprehenderit laborum enim sit.",
+    "price": 782.35,
+    "imageUrl": "https://placekitten.com/300/200?image=32",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 33,
+    "name": "consequat id",
+    "description": "Do pariatur commodo fugiat magna pariatur ex labore ad ad culpa nulla. Nostrud minim mollit ullamco.",
+    "price": 29.62,
+    "imageUrl": "https://placekitten.com/300/200?image=33",
+    "category": "Books",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 34,
+    "name": "irure esse dolore",
+    "description": "Qui laborum id enim culpa eu cillum ad. Minim duis eiusmod ad anim voluptate laboris aute.",
+    "price": 687,
+    "imageUrl": "https://placekitten.com/300/200?image=34",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.520Z"
+  },
+  {
+    "id": 35,
+    "name": "duis incididunt esse",
+    "description": "Dolor minim in cupidatat qui. Amet do ea aliqua adipisicing non laboris quis occaecat ad adipisicing.",
+    "price": 687.66,
+    "imageUrl": "https://placekitten.com/300/200?image=35",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 36,
+    "name": "dolore est",
+    "description": "Irure culpa fugiat amet officia aliqua mollit Lorem deserunt ad id.",
+    "price": 990.11,
+    "imageUrl": "https://placekitten.com/300/200?image=36",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 37,
+    "name": "laboris mollit",
+    "description": "Dolore laboris non elit sunt id aliqua reprehenderit deserunt laborum nulla esse cupidatat. Laboris velit exercitation voluptate amet Lorem ea elit ex voluptate et aliqua.",
+    "price": 65.29,
+    "imageUrl": "https://placekitten.com/300/200?image=37",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 38,
+    "name": "consequat ut",
+    "description": "Labore officia nulla sit Lorem tempor cillum labore ipsum.",
+    "price": 379.06,
+    "imageUrl": "https://placekitten.com/300/200?image=38",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 39,
+    "name": "ad mollit",
+    "description": "Voluptate laboris deserunt exercitation esse officia elit et sit nulla enim cillum. Id culpa excepteur excepteur voluptate sit nulla. Sunt cupidatat occaecat nostrud in exercitation aliquip reprehenderit deserunt.",
+    "price": 39.54,
+    "imageUrl": "https://placekitten.com/300/200?image=39",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 40,
+    "name": "nostrud",
+    "description": "Nisi non duis excepteur aliquip amet. Ullamco est commodo fugiat.",
+    "price": 407.43,
+    "imageUrl": "https://placekitten.com/300/200?image=40",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 41,
+    "name": "cupidatat non ullamco",
+    "description": "Ad nisi excepteur voluptate consequat nulla id adipisicing incididunt non amet.",
+    "price": 508.36,
+    "imageUrl": "https://placekitten.com/300/200?image=41",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 42,
+    "name": "cillum",
+    "description": "Sint nostrud ullamco eu dolore commodo duis occaecat nostrud amet magna.",
+    "price": 818.69,
+    "imageUrl": "https://placekitten.com/300/200?image=42",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 43,
+    "name": "cupidatat adipisicing",
+    "description": "Minim culpa aliquip minim exercitation est consectetur sunt est deserunt voluptate exercitation occaecat ex nulla Lorem. Dolore dolor do proident cupidatat laborum esse. Pariatur in irure tempor elit deserunt veniam.",
+    "price": 224.06,
+    "imageUrl": "https://placekitten.com/300/200?image=43",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 44,
+    "name": "consequat ea nisi",
+    "description": "Duis exercitation consequat voluptate ut cillum proident aliqua eiusmod excepteur do eiusmod reprehenderit nostrud in irure. Pariatur consectetur adipisicing aute ipsum non sunt consequat aliquip duis sint veniam amet irure. Incididunt dolor ad velit sint Lorem adipisicing ad.",
+    "price": 574.21,
+    "imageUrl": "https://placekitten.com/300/200?image=44",
+    "category": "Electronics",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 45,
+    "name": "culpa enim commodo",
+    "description": "Ad Lorem ex Lorem aliqua ipsum commodo voluptate dolore consequat labore quis excepteur. Nulla anim velit id quis sint minim in. Sit esse incididunt proident ullamco qui consequat veniam aliqua voluptate laborum velit consequat.",
+    "price": 997.63,
+    "imageUrl": "https://placekitten.com/300/200?image=45",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 46,
+    "name": "proident eiusmod",
+    "description": "Ex aliqua cupidatat cupidatat mollit reprehenderit aliquip ut duis exercitation ut consectetur exercitation magna laboris sit. Ad tempor amet sunt proident velit.",
+    "price": 356.27,
+    "imageUrl": "https://placekitten.com/300/200?image=46",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 47,
+    "name": "ad enim adipisicing",
+    "description": "Elit proident exercitation elit labore quis culpa dolor elit dolore. Enim deserunt voluptate est aliqua exercitation Lorem.",
+    "price": 100.74,
+    "imageUrl": "https://placekitten.com/300/200?image=47",
+    "category": "Clothing",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 48,
+    "name": "sint non est",
+    "description": "Qui aliquip adipisicing id velit.",
+    "price": 651.42,
+    "imageUrl": "https://placekitten.com/300/200?image=48",
+    "category": "Books",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 49,
+    "name": "reprehenderit eiusmod",
+    "description": "Nostrud occaecat incididunt elit adipisicing sunt quis ut amet. Dolor excepteur cupidatat cillum eiusmod.",
+    "price": 952.18,
+    "imageUrl": "https://placekitten.com/300/200?image=49",
+    "category": "Beauty",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  },
+  {
+    "id": 50,
+    "name": "eiusmod ea",
+    "description": "Fugiat irure consectetur duis quis deserunt laborum exercitation est ipsum magna reprehenderit ex laboris aute. Culpa dolore occaecat dolor reprehenderit anim amet aliquip sunt in esse.",
+    "price": 458.28,
+    "imageUrl": "https://placekitten.com/300/200?image=50",
+    "category": "Home & Garden",
+    "createdAt": "2024-12-19T06:17:12.521Z"
+  }
+]
