@@ -1,5 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+design document: https://chatgpt.com/share/6778a35c-87c4-8003-b1c7-6685ca45ade3
+
 ## Getting Started
 
 First, run the development server:
