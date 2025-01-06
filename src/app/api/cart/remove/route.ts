@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '../../../../../lib/db';
+import { db } from '../../../../../lib/db';
 
 export async function DELETE(request: Request) {
   try {
@@ -16,7 +16,7 @@ export async function DELETE(request: Request) {
       return new NextResponse('Invalid product ID', { status: 400 });
     }
 
-    await pool.query('DELETE FROM order_items WHERE product_id = $1', [numericProductId]);
+    await db.query('DELETE FROM order_items WHERE product_id = $1', [numericProductId]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
