@@ -1,0 +1,149 @@
+# Design Document: Revamped Footer for eShop
+
+## Objective
+To enhance the e-commerce website's footer with additional functionalities and improve its overall design while maintaining consistency with the existing color scheme.
+
+---
+
+## Current Issues
+- The current footer is too minimal.
+- Lacks social media links and a newsletter subscription option.
+- Doesn’t fully utilize the space to engage users.
+
+---
+
+## Key Additions in the Revamped Footer
+1. **Social Media Links**: Icons and links for Facebook, Instagram, and Twitter.
+2. **Newsletter Subscription**: A link leading to a dedicated `/newsletter` page where users can subscribe or unsubscribe from the newsletter.
+3. **Enhanced Navigation Links**: Better organized links for About, Privacy Policy, Terms of Service, and Contact.
+4. **Copyright Notice**: Improved styling to make the copyright section more prominent.
+
+---
+
+## Layout Structure
+### **Section 1: Quick Links**
+- About
+- Privacy Policy
+- Terms of Service
+- Contact
+
+### **Section 2: Social Media Links**
+- Use recognizable icons for Facebook, Instagram, and Twitter.
+- Links should open in a new tab.
+- Color: Use the primary accent color (#4CAF50) for hover states.
+
+### **Section 3: Newsletter Subscription**
+- Text: "Subscribe to Our Newsletter"
+- Button: A clickable link that directs users to the `/newsletter` page.
+- On the `/newsletter` page, users can:
+  - **Subscribe**: Enter their email address and opt-in for the newsletter.
+  - **Unsubscribe**: Enter their email address and opt-out from the newsletter.
+
+### **Section 4: Copyright Notice**
+- Text: "© 2025 eShop. All rights reserved."
+- Align the text to the center.
+- Use #2C2C2C text color in light mode and #FFFFFF in dark mode.
+
+---
+
+## Styling Details
+### Background Colors:
+- **Light Mode:** #F1F3F6
+- **Dark Mode:** #181818
+
+### Text Colors:
+- **Light Mode:** #2C2C2C
+- **Dark Mode:** #FFFFFF
+
+### Button Styling:
+```css
+.subscribe-button {
+  background-color: var(--primary-accent);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.subscribe-button:hover {
+  background-color: var(--secondary-accent);
+}
+```
+
+---
+
+## Database Integration for Newsletter Subscription
+### Database Table: `customers`
+- **newsletter_opt_in (BOOLEAN)**: Indicates whether the customer has opted into the newsletter.
+- **subscription_status (VARCHAR)**: Stores the subscription status (e.g., active, unsubscribed).
+
+### Sample SQL Queries
+- Get all newsletter subscribers:
+  ```sql
+  SELECT name, email
+  FROM public.customers
+  WHERE newsletter_opt_in = TRUE;
+  ```
+- Update a customer's newsletter preference by email:
+  ```sql
+  UPDATE public.customers
+  SET newsletter_opt_in = <true_or_false>
+  WHERE email = <your_email>;
+  ```
+
+---
+
+## Example HTML Structure
+```html
+<footer>
+  <div class="footer-links">
+    <a href="/about">About</a>
+    <a href="/privacy-policy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/contact">Contact</a>
+  </div>
+
+  <div class="footer-social-media">
+    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+  </div>
+
+  <div class="footer-newsletter">
+    <p>Subscribe to Our Newsletter</p>
+    <a href="/newsletter" class="subscribe-button">Go to Newsletter Page</a>
+  </div>
+
+  <div class="footer-copyright">
+    <p>© 2025 eShop. All rights reserved.</p>
+  </div>
+</footer>
+```
+
+---
+
+## Responsive Design Considerations
+- Ensure the footer adapts to various screen sizes.
+- For mobile devices, stack sections vertically.
+- Use flexbox or grid for desktop layouts to maintain a clean and organized structure.
+
+---
+
+## Accessibility Considerations
+- Ensure all links and buttons are keyboard-navigable.
+- Provide sufficient contrast between text and background colors.
+- Add `aria-labels` for social media icons to improve screen reader accessibility.
+
+---
+
+## Testing Plan
+1. **Cross-Browser Testing**: Verify the footer's appearance and functionality across major browsers (Chrome, Firefox, Safari, Edge).
+2. **Responsive Testing**: Ensure the footer looks good on various screen sizes (desktop, tablet, mobile).
+3. **Accessibility Testing**: Use tools like Lighthouse to check accessibility scores.
+
+---
+
+## Conclusion
+The revamped footer will provide a more engaging and functional user experience, enhancing the eShop brand while maintaining consistency with the existing design language. The integration of a dedicated `/newsletter` page with subscribe and unsubscribe options ensures that the newsletter feature is user-friendly and well-integrated with the database.
+
+

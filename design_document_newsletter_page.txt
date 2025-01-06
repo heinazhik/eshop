@@ -1,0 +1,199 @@
+# Design Document: /newsletter Page for eShop
+
+## Objective
+The `/newsletter` page will allow users to subscribe or unsubscribe from the eShop newsletter. The page will follow the color scheme and design aesthetics of the eShop website and provide a seamless user experience.
+
+---
+
+## Page Layout and Structure
+The `/newsletter` page will have the following sections:
+
+1. **Header Section**
+   - Page title: "Stay Updated with Our Newsletter"
+   - Description: "Subscribe to get the latest updates, offers, and news directly in your inbox. You can unsubscribe anytime."
+
+2. **Subscription Form Section**
+   - Input field for email address
+   - Subscribe button
+   - Unsubscribe button
+
+3. **Confirmation Message Section**
+   - Displays feedback messages after users interact with the form (e.g., "Subscription successful!" or "You have unsubscribed.")
+
+4. **Footer Section**
+   - Links to Privacy Policy, Terms of Service, and Contact page
+
+---
+
+## Styling Details
+### **Color Scheme**
+- **Background Color:** #F9FAFB (light mode) / #1A1A1A (dark mode)
+- **Primary Text Color:** #2C2C2C (light mode) / #FFFFFF (dark mode)
+- **Button Colors:**
+  - **Subscribe Button:** #4CAF50 (primary accent) with white text
+  - **Unsubscribe Button:** #F44336 (red accent) with white text
+
+### **Typography**
+- Font Family: "Inter", sans-serif
+- Header Font Size: 28px
+- Body Font Size: 16px
+- Button Font Size: 18px
+
+---
+
+## HTML Structure Example
+```html
+<div class="newsletter-page">
+  <header>
+    <h1>Stay Updated with Our Newsletter</h1>
+    <p>Subscribe to get the latest updates, offers, and news directly in your inbox. You can unsubscribe anytime.</p>
+  </header>
+
+  <section class="newsletter-form">
+    <input type="email" placeholder="Enter your email address" required />
+    <button class="subscribe-button">Subscribe</button>
+    <button class="unsubscribe-button">Unsubscribe</button>
+  </section>
+
+  <section class="confirmation-message" hidden>
+    <p></p>
+  </section>
+
+  <footer>
+    <a href="/privacy-policy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/contact">Contact</a>
+  </footer>
+</div>
+```
+
+---
+
+## CSS Styling Example
+```css
+.newsletter-page {
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  padding: 40px;
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.newsletter-form input {
+  width: 80%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.subscribe-button {
+  background-color: var(--primary-accent);
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.unsubscribe-button {
+  background-color: #F44336;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.subscribe-button:hover {
+  background-color: var(--secondary-accent);
+}
+
+.unsubscribe-button:hover {
+  background-color: #D32F2F;
+}
+
+.confirmation-message {
+  margin-top: 20px;
+  font-size: 18px;
+  color: var(--primary-accent);
+}
+```
+
+---
+
+## Database Integration
+### Database Table: `customers`
+- **email (VARCHAR)**: The email address of the user
+- **newsletter_opt_in (BOOLEAN)**: Whether the user has opted into the newsletter
+
+### Backend API Endpoints
+1. **POST /api/newsletter/subscribe**
+   - Request Body: `{ "email": "example@example.com" }`
+   - Response: `{ "message": "Subscription successful!" }`
+
+2. **POST /api/newsletter/unsubscribe**
+   - Request Body: `{ "email": "example@example.com" }`
+   - Response: `{ "message": "You have unsubscribed." }`
+
+---
+
+## Client-Side JavaScript Example
+```javascript
+document.querySelector('.subscribe-button').addEventListener('click', async () => {
+  const email = document.querySelector('input').value;
+  const response = await fetch('/api/newsletter/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  const result = await response.json();
+  document.querySelector('.confirmation-message p').textContent = result.message;
+  document.querySelector('.confirmation-message').hidden = false;
+});
+
+document.querySelector('.unsubscribe-button').addEventListener('click', async () => {
+  const email = document.querySelector('input').value;
+  const response = await fetch('/api/newsletter/unsubscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  const result = await response.json();
+  document.querySelector('.confirmation-message p').textContent = result.message;
+  document.querySelector('.confirmation-message').hidden = false;
+});
+```
+
+---
+
+## Responsive Design Considerations
+- Ensure the page adapts to various screen sizes.
+- For mobile devices, stack the form elements vertically.
+- Use flexbox or grid layout for desktop screens to keep the page well-structured.
+
+---
+
+## Accessibility Considerations
+- Provide `aria-labels` for input fields and buttons.
+- Ensure that the page is fully navigable using a keyboard.
+- Ensure that color contrast ratios meet accessibility guidelines.
+
+---
+
+## Testing Plan
+1. **Cross-Browser Testing**: Verify the page's appearance and functionality across major browsers (Chrome, Firefox, Safari, Edge).
+2. **Responsive Testing**: Ensure the page looks good on various screen sizes (desktop, tablet, mobile).
+3. **Accessibility Testing**: Use tools like Lighthouse to check accessibility scores.
+4. **Database Testing**: Verify that the subscription and unsubscription functionalities update the database correctly.
+
+---
+
+## Conclusion
+The `/newsletter` page will provide users with a simple and effective way to manage their newsletter subscriptions. The page will enhance user engagement and streamline the newsletter management process.
+
+
