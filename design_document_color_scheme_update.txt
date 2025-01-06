@@ -1,0 +1,113 @@
+# Design Document for Enhanced Color Scheme of eShop
+
+## Objectives
+The new color scheme for the eShop website aims to:
+1. Enhance visual appeal with a modern and user-friendly design.
+2. Improve readability and accessibility by ensuring proper contrast.
+3. Maintain a cohesive and attractive look across desktop and mobile platforms.
+
+---
+
+## New Color Palette
+
+### Primary Colors
+- **Background Color (Light Mode):** #F7F9FC (Soft White)
+- **Background Color (Dark Mode):** #121212 (Dark Gray Black)
+- **Primary Accent Color:** #4CAF50 (Green) for buttons and highlights
+- **Secondary Accent Color:** #FFC107 (Amber) for calls-to-action and minor highlights
+- **Text Color (Light Mode):** #2C2C2C (Charcoal Black)
+- **Text Color (Dark Mode):** #FFFFFF (White)
+
+### Supporting Colors
+- **Headers (Light Mode):** #333333 (Dark Charcoal)
+- **Headers (Dark Mode):** #EAEAEA (Soft White)
+- **Links (Light Mode):** #007BFF (Blue)
+- **Links (Dark Mode):** #80BFFF (Light Blue)
+- **Card Background (Light Mode):** #FFFFFF (White)
+- **Card Background (Dark Mode):** #1E1E1E (Dark Gray)
+- **Footer Background (Light Mode):** #F1F3F6 (Light Gray)
+- **Footer Background (Dark Mode):** #181818 (Deep Gray)
+
+---
+
+## Design Changes for Elements
+
+### Header and Navigation Bar
+- **Background:** Use the primary background color.
+- **Text and Icons:** Use the primary text color for light mode and white for dark mode.
+- **Hover/Active States:** Apply the secondary accent color for buttons and active links.
+
+### Hero Section
+- **Title Text:** Use a high-contrast color: #2C2C2C for light mode and #FFFFFF for dark mode.
+- **Background:** Incorporate a gradient using primary and secondary accent colors (e.g., Green to Amber).
+- **CTA Button:** Use the primary accent color (Green) with white text and a hover effect in amber.
+
+### Product Cards
+- **Card Background:** White in light mode and dark gray in dark mode.
+- **Product Title:** Charcoal Black in light mode, Soft White in dark mode.
+- **Price:** Use the secondary accent color for contrast.
+- **View Button:** Green background with white text; on hover, switch to amber background.
+
+### Blog Section
+- **Featured Post Background:** Light gray in light mode (#F1F3F6), dark gray in dark mode (#1E1E1E).
+- **Post Titles:** Use primary text color for light mode and white for dark mode.
+- **Read More Link:** Highlight with the primary accent color.
+
+### Footer
+- **Background:** Use the footer background color.
+- **Links:** Apply the primary accent color for links in both modes.
+- **Text:** Use the text color suitable for the mode.
+
+---
+
+## Accessibility Considerations
+1. **Contrast Ratio:** Ensure a contrast ratio of at least 4.5:1 for text against background colors.
+2. **Hover Effects:** Provide a clear visual change (e.g., color or underline) for interactive elements.
+3. **Font Size:** Maintain a minimum font size of 16px for body text.
+
+---
+
+## Responsive Design
+- Use the same color scheme for both desktop and mobile platforms.
+- Ensure that colors adapt fluidly for different screen sizes.
+
+---
+
+## Implementation Guide
+
+1. Update the CSS variables to define the new color palette:
+```css
+:root {
+  /* Light Mode */
+  --background-light: #F7F9FC;
+  --text-light: #2C2C2C;
+  --primary-accent: #4CAF50;
+  --secondary-accent: #FFC107;
+  --link-light: #007BFF;
+  --card-light: #FFFFFF;
+  --footer-light: #F1F3F6;
+
+  /* Dark Mode */
+  --background-dark: #121212;
+  --text-dark: #FFFFFF;
+  --link-dark: #80BFFF;
+  --card-dark: #1E1E1E;
+  --footer-dark: #181818;
+}
+```
+
+2. Update HTML classes and CSS selectors to apply new colors to respective elements.
+3. Test the new design on both desktop and mobile devices to ensure consistency.
+
+---
+
+## Testing and Feedback
+1. Conduct A/B testing to evaluate user preference for the new color scheme.
+2. Gather feedback from users to identify any areas for improvement.
+3. Perform accessibility testing using tools like Lighthouse and axe.
+
+---
+
+## Conclusion
+The updated color scheme aims to deliver a visually appealing, modern, and accessible design that enhances the user experience across all devices.
+

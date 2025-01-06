@@ -1,0 +1,234 @@
+Title: Contact Page Design and Email Sending Implementation
+
+Purpose: Define the appearance, behavior, and functionality of the contact page for an e-commerce website, including how the "Send Message" button should validate input and send emails.
+
+1. User Interface Design
+Page Components:
+
+Header:
+
+Website logo on the top-left (eShop).
+Navigation links: "About," "Blog," and a shopping cart icon on the top-right.
+Contact Form:
+
+Fields:
+Name (single-line text input)
+Email (single-line text input)
+Message (multi-line text area)
+Button:
+"Send Message" (green, prominently styled for action).
+Other Contact Options:
+
+Email link: support@eshop.com.
+Phone number: +1-555-123-4567.
+Styling Guidelines:
+
+Maintain a clean and minimalistic design.
+Use neutral colors for the background, contrasting text, and a bright green action button.
+Ensure a responsive layout for mobile and desktop.
+2. Form Validation
+Field Validations:
+
+Name:
+
+Required field.
+Minimum 2 characters.
+Only alphabetical characters allowed (no numbers or special symbols).
+Email:
+
+Required field.
+Must follow standard email format (e.g., user@example.com).
+Message:
+
+Required field.
+Minimum 10 characters to ensure meaningful messages.
+Error Messages:
+
+Provide inline, user-friendly error messages for validation failures (e.g., "Name cannot be empty" or "Please enter a valid email address").
+Highlight invalid fields with a red border.
+3. Send Button Behavior
+When Clicked:
+
+Validation:
+
+All fields are validated on the client side.
+If any field fails validation, the button does not submit, and corresponding error messages are displayed.
+Success:
+
+On successful submission:
+Display a success message like "Thank you for contacting us! We will get back to you shortly."
+Optionally, reset the form fields to blank.
+Send the form data to the backend API for processing.
+Error Handling:
+
+If the backend fails to process the message:
+Display an error message, e.g., "Oops! Something went wrong. Please try again later."
+Ensure the form remains populated so users don't lose their data.
+Loading State:
+
+Disable the "Send Message" button temporarily.
+Display a spinner or "Sending..." text while waiting for a response.
+4. Email Sending Implementation
+Tech Stack Context
+Frontend Framework: Next.js with TypeScript.
+Styling: Tailwind CSS.
+Backend: Serverless functions within the Next.js project.
+Environment: Ubuntu 24.04.
+Email Sending Flow
+Frontend Form Submission:
+
+When the "Send Message" button is pressed, the form data is validated on the client side.
+Valid data is sent via an HTTP POST request to a Next.js API route (/api/contact).
+Backend Processing:
+
+A serverless function (pages/api/contact.ts) handles the email-sending logic.
+The serverless function uses Nodemailer to send emails via an SMTP server or a transactional email service like SendGrid, Postmark, or Amazon SES.
+SMTP Configuration:
+
+Secure credentials for the SMTP server are stored in environment variables in the .env.local file (never hardcoded).
+Example:
+env
+Copy code
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email@example.com
+SMTP_PASSWORD=your-password
+EMAIL_FROM=your-email@example.com
+EMAIL_TO=support@example.com
+Code Implementation
+Frontend Form Submission:
+
+tsx
+Copy code
+import { useState } from 'react';
+
+export default function ContactForm() {
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Sending...');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus('Message sent successfully!');
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        setStatus('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      setStatus('An error occurred. Please try again.');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        value={formData.name}
+        onChange={handleInputChange}
+        className="w-full p-2 border rounded"
+        required
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={formData.email}
+        onChange={handleInputChange}
+        className="w-full p-2 border rounded"
+        required
+      />
+      <textarea
+        name="message"
+        placeholder="Message"
+        value={formData.message}
+        onChange={handleInputChange}
+        className="w-full p-2 border rounded"
+        required
+      />
+      <button
+        type="submit"
+        className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+      >
+        Send Message
+      </button>
+      {status && <p>{status}</p>}
+    </form>
+  );
+}
+Serverless Function (pages/api/contact.ts):
+
+tsx
+Copy code
+import { NextApiRequest, NextApiResponse } from 'next';
+import nodemailer from 'nodemailer';
+
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: process.env.EMAIL_TO,
+      subject: `New Contact Form Submission from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    });
+
+    res.status(200).json({ message: 'Email sent successfully.' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+export default handler;
+5. Accessibility Considerations
+Add labels to all input fields for screen readers.
+Ensure the form is keyboard-navigable.
+Use ARIA attributes for error messages (e.g., aria-live for dynamic content updates).
+High contrast between text and background for better visibility.
+6. Optional Enhancements
+Auto-Save:
+
+Save form data locally (using browser storage) to prevent data loss if the user accidentally refreshes the page.
+Captcha/Spam Protection:
+
+Integrate Google reCAPTCHA or a similar solution to block bots.
+File Attachments:
+
+Allow users to upload files (e.g., screenshots) with their queries.
+Analytics:
+
+Track button clicks and submission errors for monitoring user behavior and identifying issues.
+

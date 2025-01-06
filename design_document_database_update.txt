@@ -1,0 +1,158 @@
+Database Design Specification Document (updated)
+1. Overview
+This document describes the schema and tables for the ecommerce_db database, which supports an e-commerce platform with additional features for newsletter subscriptions and a blog service.
+
+2. Database Schema
+2.1 Tables Overview
+The database consists of the following tables:
+
+Products: Stores product information.
+
+Customers: Stores customer information, including newsletter subscription status.
+
+Logistics_Partners: Stores logistics partner details.
+
+Orders: Stores order information.
+
+Order_Items: Stores items associated with each order.
+
+Sales_Reports: Stores sales reports.
+
+Blog_Categories: Stores blog post categories.
+
+Blog_Authors: Stores blog author information.
+
+Blog_Posts: Stores blog posts.
+
+Blog_Comments: Stores comments on blog posts.
+
+Subscription_History: Tracks changes in customer newsletter subscription status.
+
+3. Table Specifications
+3.1 Products Table
+Stores product details.
+
+Column Name	Data Type	Constraints	Description
+product_id	SERIAL	PRIMARY KEY	Unique identifier for the product.
+name	VARCHAR	NOT NULL	Name of the product.
+category	VARCHAR		Category of the product.
+price	DECIMAL	NOT NULL	Price of the product.
+stock_quantity	INTEGER	DEFAULT 0	Quantity of the product in stock.
+description	TEXT		Description of the product.
+created_at	TIMESTAMP	DEFAULT now()	Timestamp of product creation.
+3.2 Customers Table
+Stores customer information, including newsletter subscription status.
+
+Column Name	Data Type	Constraints	Description
+customer_id	SERIAL	PRIMARY KEY	Unique identifier for the customer.
+name	VARCHAR	NOT NULL	Name of the customer.
+email	VARCHAR	UNIQUE, NOT NULL	Email address of the customer.
+phone	VARCHAR		Phone number of the customer.
+address	JSONB		Address of the customer (JSON format).
+registration_date	TIMESTAMP	DEFAULT now()	Timestamp of customer registration.
+newsletter_opt_in	BOOLEAN	DEFAULT FALSE	Whether the customer opted into the newsletter.
+subscription_status	VARCHAR	DEFAULT 'unsubscribed'	Current newsletter subscription status.
+3.3 Logistics_Partners Table
+Stores logistics partner details.
+
+Column Name	Data Type	Constraints	Description
+partner_id	SERIAL	PRIMARY KEY	Unique identifier for the partner.
+name	VARCHAR	NOT NULL	Name of the logistics partner.
+region	VARCHAR		Region served by the partner.
+contact_details	JSONB		Contact details of the partner (JSON format).
+3.4 Orders Table
+Stores order information.
+
+Column Name	Data Type	Constraints	Description
+order_id	SERIAL	PRIMARY KEY	Unique identifier for the order.
+customer_id	INTEGER	REFERENCES Customers	ID of the customer who placed the order.
+status	VARCHAR		Status of the order (e.g., Pending, Shipped).
+total_amount	DECIMAL	NOT NULL	Total amount of the order.
+created_at	TIMESTAMP	DEFAULT now()	Timestamp of order creation.
+3.5 Order_Items Table
+Stores items associated with each order.
+
+Column Name	Data Type	Constraints	Description
+order_item_id	SERIAL	PRIMARY KEY	Unique identifier for the order item.
+order_id	INTEGER	REFERENCES Orders	ID of the associated order.
+product_id	INTEGER	REFERENCES Products	ID of the product in the order.
+quantity	INTEGER	NOT NULL	Quantity of the product ordered.
+price	DECIMAL	NOT NULL	Price of the product at the time of order.
+3.6 Sales_Reports Table
+Stores sales reports.
+
+Column Name	Data Type	Constraints	Description
+report_id	SERIAL	PRIMARY KEY	Unique identifier for the report.
+date_range	JSONB	NOT NULL	Date range for the report (JSON format).
+total_sales	DECIMAL		Total sales in the date range.
+orders_count	INTEGER		Number of orders in the date range.
+3.7 Blog_Categories Table
+Stores blog post categories.
+
+Column Name	Data Type	Constraints	Description
+category_id	SERIAL	PRIMARY KEY	Unique identifier for the category.
+name	VARCHAR	NOT NULL, UNIQUE	Name of the category.
+3.8 Blog_Authors Table
+Stores blog author information.
+
+Column Name	Data Type	Constraints	Description
+author_id	SERIAL	PRIMARY KEY	Unique identifier for the author.
+name	VARCHAR	NOT NULL	Name of the author.
+email	VARCHAR	UNIQUE, NOT NULL	Email address of the author.
+bio	TEXT		Biography of the author.
+3.9 Blog_Posts Table
+Stores blog posts.
+
+Column Name	Data Type	Constraints	Description
+post_id	SERIAL	PRIMARY KEY	Unique identifier for the post.
+title	VARCHAR	NOT NULL	Title of the post.
+content	TEXT	NOT NULL	Content of the post.
+excerpt	TEXT		Short excerpt of the post.
+author_id	INTEGER	REFERENCES Blog_Authors	ID of the author who wrote the post.
+category_id	INTEGER	REFERENCES Blog_Categories	ID of the category the post belongs to.
+published_at	TIMESTAMP	DEFAULT now()	Timestamp of post publication.
+updated_at	TIMESTAMP	DEFAULT now()	Timestamp of last post update.
+3.10 Blog_Comments Table
+Stores comments on blog posts.
+
+Column Name	Data Type	Constraints	Description
+comment_id	SERIAL	PRIMARY KEY	Unique identifier for the comment.
+post_id	INTEGER	REFERENCES Blog_Posts	ID of the associated post.
+author_name	VARCHAR	NOT NULL	Name of the commenter.
+author_email	VARCHAR	NOT NULL	Email address of the commenter.
+content	TEXT	NOT NULL	Content of the comment.
+commented_at	TIMESTAMP	DEFAULT now()	Timestamp of the comment.
+3.11 Subscription_History Table
+Tracks changes in customer newsletter subscription status.
+
+Column Name	Data Type	Constraints	Description
+history_id	SERIAL	PRIMARY KEY	Unique identifier for the history entry.
+customer_id	INTEGER	REFERENCES Customers	ID of the customer.
+status	VARCHAR	NOT NULL	New subscription status.
+changed_at	TIMESTAMP	DEFAULT now()	Timestamp of the status change.
+4. Relationships
+Customers ↔ Orders: One-to-many (a customer can have multiple orders).
+
+Orders ↔ Order_Items: One-to-many (an order can have multiple items).
+
+Products ↔ Order_Items: One-to-many (a product can be in multiple order items).
+
+Blog_Authors ↔ Blog_Posts: One-to-many (an author can write multiple posts).
+
+Blog_Categories ↔ Blog_Posts: One-to-many (a category can have multiple posts).
+
+Blog_Posts ↔ Blog_Comments: One-to-many (a post can have multiple comments).
+
+Customers ↔ Subscription_History: One-to-many (a customer can have multiple subscription status changes).
+
+5. Indexes
+Products: Indexes on name and category.
+
+Customers: Index on email.
+
+Blog_Posts: Indexes on title and published_at.
+
+Blog_Comments: Index on commented_at.
+
+This document provides a comprehensive description of the current database schema and tables.
+

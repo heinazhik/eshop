@@ -1,0 +1,129 @@
+Here is a detailed Design Specification Document for implementing your blog page based on the mockup, updated database schema, and additional requirements:
+
+Blog Page Design Specification
+1. Objective
+To create a user-friendly, modern, and attractive blog page for an e-commerce website. The page should allow registered customers to submit blog posts while maintaining a clean layout and seamless navigation.
+
+2. Functional Requirements
+Display Blog Posts:
+
+Featured Posts: Highlight the most important or recent posts at the top.
+All Posts Section: Show all blog posts in a paginated or scrollable layout.
+Search Functionality:
+
+Provide a search bar for users to search for posts by keywords in the title, excerpt, or content.
+Category Filter:
+
+List available categories (from the Blog_Categories table) in a sidebar to allow users to filter posts.
+Recent Posts:
+
+Display the most recent posts (sorted by published_at) in the sidebar.
+New Blog Post Submission:
+
+Add a button for registered customers to submit new posts.
+The button should be visible only to logged-in customers.
+Upon clicking, navigate to a form for submitting the blog title, content, category, and an optional excerpt.
+Comment Functionality:
+
+Allow users to view and submit comments on individual blog posts.
+Comments must display the name, content, and timestamp.
+3. UI/UX Design
+General Layout:
+
+Header: Include navigation links (e.g., Home, Blog, About, Cart).
+Main Body: Two-column layout:
+Left Column: Blog content.
+Right Sidebar: Search, categories, and recent posts.
+Visual Hierarchy:
+
+Use larger, bold fonts for titles and subtle shades for excerpts.
+Add "Read More" links to navigate to the full post page.
+Responsiveness:
+
+Ensure the page is responsive and mobile-friendly.
+Colors and Typography:
+
+Maintain consistency with the e-commerce website’s theme.
+Use readable font sizes and line spacing for better accessibility.
+CTA Buttons:
+
+Use a prominent color for the "Add Blog Post" button.
+Add hover effects to all interactive elements.
+4. Backend Functionality
+Blog Posts Retrieval:
+
+Fetch posts from the Blog_Posts table, including the title, excerpt, published_at, and category.
+Category Management:
+
+Use the Blog_Categories table to populate the category filter.
+New Post Submission:
+
+Validate that the user is logged in and registered (check the Customers table).
+Save the post data to the Blog_Posts table.
+Comment Handling:
+
+Save comments in the Blog_Comments table, associating them with the correct post.
+Search Functionality:
+
+Query the Blog_Posts table for posts matching the search keyword in the title, excerpt, or content.
+5. Security and Permissions
+Authentication:
+
+Ensure only logged-in users can submit blog posts.
+Data Validation:
+
+Sanitize user input to prevent SQL injection and XSS attacks.
+Spam Prevention:
+
+Add a CAPTCHA or similar mechanism to the comment submission form.
+6. Database Interaction
+Fetch Posts:
+
+Query to fetch blog posts:
+sql
+Copy code
+SELECT post_id, title, excerpt, category_id, published_at
+FROM Blog_Posts
+ORDER BY published_at DESC;
+Fetch Categories:
+
+Query to retrieve all categories:
+sql
+Copy code
+SELECT category_id, name
+FROM Blog_Categories;
+Add New Blog Post:
+
+Insert a new blog post:
+sql
+Copy code
+INSERT INTO Blog_Posts (title, content, excerpt, author_id, category_id, published_at)
+VALUES (?, ?, ?, ?, ?, now());
+Fetch Comments:
+
+Query to retrieve comments for a specific post:
+sql
+Copy code
+SELECT comment_id, author_name, content, commented_at
+FROM Blog_Comments
+WHERE post_id = ?;
+Add Comment:
+
+Insert a new comment:
+sql
+Copy code
+INSERT INTO Blog_Comments (post_id, author_name, author_email, content, commented_at)
+VALUES (?, ?, ?, ?, now());
+7. Testing and Validation
+Frontend Tests:
+
+Test layout responsiveness across devices.
+Verify the visibility of the "Add Blog Post" button for logged-in users only.
+Backend Tests:
+
+Validate all queries for correctness.
+Check permissions for adding blog posts and comments.
+User Testing:
+
+Collect feedback on the page's usability and visual appeal.
+

@@ -1,0 +1,231 @@
+**Extracted Section: Shopping Cart Functionality**
+
+This section details the database tables and relationships essential for implementing a shopping cart system on the e-commerce website. It includes the tables for products, customers, orders, and order items.
+
+**1. Relevant Tables:**
+
+The following tables are crucial for managing a shopping cart:
+
+*   **`products`**: Stores information about products.
+*   **`customers`**: Stores information about customers.
+*   **`orders`**: Stores information about orders placed.
+*   **`order_items`**: Stores individual items within an order.
+
+**2. Table Details:**
+
+Here are the details of each relevant table, including their DDL commands, columns, and indexes:
+
+**2.1 `products` Table**
+
+*   **Description:** Stores information about the products available for purchase.
+*   **DDL Command:**
+
+    ```sql
+    CREATE TABLE public.products (
+        product_id INTEGER NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        price NUMERIC NOT NULL,
+        created_at TIMESTAMP WITHOUT TIME ZONE,
+        category VARCHAR(255),
+        stock_quantity INTEGER,
+        CONSTRAINT products_pkey PRIMARY KEY (product_id)
+    );
+
+    CREATE INDEX idx_products_name ON public.products USING btree (name);
+    CREATE INDEX idx_products_category ON public.products USING btree (category);
+    ```
+
+*   **Columns:**
+    *   `product_id`: INTEGER, Primary Key, Unique identifier for each product.
+    *   `name`: VARCHAR(255), NOT NULL, Name of the product.
+    *   `description`: TEXT, Description of the product.
+    *   `price`: NUMERIC, NOT NULL, Price of the product.
+    *   `created_at`: TIMESTAMP WITHOUT TIME ZONE, Date and time the product was added to the catalog.
+    *   `category`: VARCHAR(255), Category the product belongs to.
+    *   `stock_quantity`: INTEGER, Number of units available in stock.
+*   **Indexes:**
+    *   `products_pkey`: UNIQUE, Primary Key on `product_id`.
+    *   `idx_products_name`: INDEX, on column `name`.
+    *   `idx_products_category`: INDEX, on column `category`.
+
+**2.2 `customers` Table**
+
+*   **Description:** Stores information about registered customers.
+*   **DDL Command:**
+
+    ```sql
+    CREATE TABLE public.customers (
+        customer_id INTEGER NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(255),
+        address JSONB,
+        newsletter_opt_in BOOLEAN,
+        registration_date TIMESTAMP WITHOUT TIME ZONE,
+        subscription_status VARCHAR(255),
+        CONSTRAINT customers_pkey PRIMARY KEY (customer_id),
+        CONSTRAINT customers_email_key UNIQUE (email)
+    );
+
+    CREATE INDEX idx_customers_email ON public.customers USING btree (email);
+    ```
+
+*   **Columns:**
+    *   `customer_id`: INTEGER, Primary Key, Unique identifier for each customer.
+    *   `name`: VARCHAR(255), NOT NULL, Name of the customer.
+    *   `email`: VARCHAR(255), NOT NULL, Email address of the customer (must be unique).
+    *   `phone`: VARCHAR(255), Phone number of the customer.
+    *   `address`: JSONB, Address of the customer stored as JSON.
+    *   `newsletter_opt_in`: BOOLEAN, Indicates if the customer has opted in for newsletters.
+    *   `registration_date`: TIMESTAMP WITHOUT TIME ZONE, Date and time when the customer registered.
+    *   `subscription_status`: VARCHAR(255), Status of the customer's subscription.
+*   **Indexes:**
+    *   `customers_pkey`: UNIQUE, Primary Key on `customer_id`.
+    *   `customers_email_key`: UNIQUE, Enforces unique email addresses for customers.
+    *    `idx_customers_email`: INDEX, on column `email`.
+
+**2.3 `orders` Table**
+
+*   **Description:** Stores information about customer orders.
+*   **DDL Command:**
+
+    ```sql
+    CREATE TABLE public.orders (
+        order_id INTEGER NOT NULL,
+        customer_id INTEGER,
+        total_amount NUMERIC NOT NULL,
+        created_at TIMESTAMP WITHOUT TIME ZONE,
+        status VARCHAR(255),
+        CONSTRAINT orders_pkey PRIMARY KEY (order_id)
+    );
+    ```
+
+*   **Columns:**
+    *   `order_id`: INTEGER, Primary Key, Unique identifier for each order.
+    *   `customer_id`: INTEGER, Foreign Key referencing the `customers` table, linking the order to the customer.
+    *   `total_amount`: NUMERIC, NOT NULL, Total amount for the entire order.
+    *   `created_at`: TIMESTAMP WITHOUT TIME ZONE, Date and time when the order was created.
+    *   `status`: VARCHAR(255), Current status of the order (e.g., "pending," "processing," "shipped," "completed").
+*   **Indexes:**
+    *   `orders_pkey`: UNIQUE, Primary Key on `order_id`.
+
+**2.4 `order_items` Table**
+
+*   **Description:** Stores individual items that are part of an order.
+*   **DDL Command:**
+
+    ```sql
+     CREATE TABLE public.order_items (
+        order_item_id INTEGER NOT NULL,
+        order_id INTEGER,
+        product_id INTEGER,
+        quantity INTEGER NOT NULL,
+        price NUMERIC NOT NULL,
+        CONSTRAINT order_items_pkey PRIMARY KEY (order_item_id)
+     );
+    ```
+*   **Columns:**
+    *   `order_item_id`: INTEGER, Primary Key, Unique identifier for each order item.
+    *   `order_id`: INTEGER, Foreign Key referencing the `orders` table, linking the item to its order.
+    *   `product_id`: INTEGER, Foreign Key referencing the `products` table, linking the item to the product.
+    *   `quantity`: INTEGER, NOT NULL, Quantity of the product included in this order item.
+    *   `price`: NUMERIC, NOT NULL, Price of the product at the time the order was placed.
+*   **Indexes:**
+    *  `order_items_pkey`: UNIQUE, Primary Key on `order_item_id`.
+
+**3. Relationships:**
+
+*   **One-to-Many:**
+    *   A `customer` can place many `orders`.
+    *   An `order` can have many `order_items`.
+    *   A `product` can appear in multiple `order_items`.
+
+**4. Shopping Cart Workflow:**
+
+The described schema supports the following steps:
+
+1.  **Browse Products:** Users can browse available products from the `products` table.
+2.  **Add to Cart:** When a user adds products to the cart (before an actual order is placed), this data could be stored temporarily (not necessarily in the database)
+3. **Place Order**: When the user completes the shopping, a new order is created in the `orders` table with status set to `pending` (initially) and `customer_id` is updated
+4.  **Create Order Items:** Once the order is created, each product in the order is saved to the `order_items` table linked to the `order_id`.
+5.  **Order History:**  Customers can retrieve their order history by querying `orders` table with the `customer_id` and then retrieving associated `order_items`.
+6.  **Order Management:** The status of the order can be updated in the `orders` table, allowing tracking of the order lifecycle
+
+**5. Sample Queries:**
+
+Here are some sample SQL queries for shopping cart related operations:
+
+*   **Get customer's order history:**
+
+    ```sql
+    SELECT
+        o.order_id,
+        o.total_amount,
+        o.created_at,
+        o.status
+    FROM
+        public.orders o
+    WHERE
+        o.customer_id = <your_customer_id>
+    ORDER BY o.created_at DESC;
+    ```
+
+*   **Get items in a specific order:**
+
+    ```sql
+    SELECT
+        oi.order_item_id,
+        p.name as product_name,
+        p.price as product_price,
+		p.description as product_description,
+        oi.quantity,
+        oi.price
+    FROM
+        public.order_items oi
+	JOIN public.products p ON oi.product_id = p.product_id
+    WHERE
+        oi.order_id = <your_order_id>;
+    ```
+
+*   **Get a product details:**
+
+    ```sql
+    SELECT
+        *
+    FROM
+        public.products
+    WHERE
+        product_id = <your_product_id>;
+
+    ```
+
+*   **Create a new order:**
+
+    ```sql
+   INSERT INTO public.orders (customer_id, total_amount, created_at, status)
+   VALUES (<your_customer_id>, <your_total_amount>, NOW(), 'pending') RETURNING order_id;
+    ```
+    (Note: the last statement returns the `order_id` created, needed for future steps)
+
+*   **Add products to an order (order items)**:
+     ```sql
+       INSERT INTO public.order_items (order_id, product_id, quantity, price)
+       VALUES
+        (<your_order_id>, <your_product_id_1>, <your_quantity_1>, <your_price_1>),
+        (<your_order_id>, <your_product_id_2>, <your_quantity_2>, <your_price_2>),
+        (<your_order_id>, <your_product_id_3>, <your_quantity_3>, <your_price_3>);
+    ```
+
+**6. Application Development Guidance:**
+
+*   **Session Management:** Use sessions to store a temporary shopping cart for users before checkout.
+*   **Checkout Flow:** Implement the checkout flow to collect customer information, process payment, and create a new order.
+*   **Inventory Management:** Update the `stock_quantity` in the `products` table after an order is placed.
+*   **Order Statuses**: Have a well-defined state management for the `orders` status (pending, processing, shipped, delivered).
+*   **User experience**: Provide clear feedback about the user's shopping cart and order status updates.
+
+**7. Conclusion:**
+
+This section provides a detailed specification of the database objects needed to implement a fully functional shopping cart for an e-commerce website. Developers can use this guide as a foundation for building out the necessary functionality in their applications. This will provide the basic functionality for an e-commerce shopping cart feature.
+

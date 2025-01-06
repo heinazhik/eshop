@@ -1,0 +1,180 @@
+Design Specification Document: E-Commerce Database Schema
+1. Introduction
+This document describes the design and implementation of the PostgreSQL database schema for an e-commerce website. The schema is designed to support the Admin Page functionality, including:
+
+Product management
+Customer management
+Logistics partners
+Orders
+Sales reports
+The database is hosted on Ubuntu 24.04 and uses PostgreSQL for efficient data storage and retrieval.
+
+2. Database Overview
+The database, named ecommerce_db, consists of six core tables:
+
+Products: Stores product details.
+Customers: Stores customer information.
+Logistics_Partners: Stores logistics partner details.
+Orders: Stores order information.
+Order_Items: Stores individual items within an order.
+Sales_Reports: Stores sales report data.
+3. Table Specifications
+3.1 Products Table
+Stores details about products available on the e-commerce platform.
+
+Column	Data Type	Constraints	Description
+product_id	SERIAL	PRIMARY KEY	Unique product identifier
+name	VARCHAR	NOT NULL	Product name
+category	VARCHAR		Product category
+price	DECIMAL	NOT NULL	Product price
+stock_quantity	INTEGER	DEFAULT 0	Quantity in stock
+description	TEXT		Product description
+created_at	TIMESTAMP	DEFAULT now()	Creation timestamp
+Indexes:
+
+idx_products_name: Index on the name column for faster searches.
+idx_products_category: Index on the category column for filtering.
+Code Snippet:
+
+python
+Copy code
+cursor.execute("""
+    CREATE TABLE Products (
+        product_id SERIAL PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        category VARCHAR,
+        price DECIMAL NOT NULL,
+        stock_quantity INTEGER DEFAULT 0,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT now()
+    );
+    CREATE INDEX idx_products_name ON Products (name);
+    CREATE INDEX idx_products_category ON Products (category);
+""")
+3.2 Customers Table
+Stores customer information, including contact details and preferences.
+
+Column	Data Type	Constraints	Description
+customer_id	SERIAL	PRIMARY KEY	Unique customer identifier
+name	VARCHAR	NOT NULL	Customer name
+email	VARCHAR	UNIQUE NOT NULL	Customer email
+phone	VARCHAR		Customer phone number
+address	JSONB		Address details
+registration_date	TIMESTAMP	DEFAULT now()	Registration timestamp
+newsletter_opt_in	BOOLEAN	DEFAULT FALSE	Newsletter subscription
+Indexes:
+
+idx_customers_email: Index on the email column for quick lookups.
+Code Snippet:
+
+python
+Copy code
+cursor.execute("""
+    CREATE TABLE Customers (
+        customer_id SERIAL PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        email VARCHAR UNIQUE NOT NULL,
+        phone VARCHAR,
+        address JSONB,
+        registration_date TIMESTAMP DEFAULT now(),
+        newsletter_opt_in BOOLEAN DEFAULT FALSE
+    );
+    CREATE INDEX idx_customers_email ON Customers (email);
+""")
+3.3 Logistics_Partners Table
+Stores details about logistics partners responsible for order delivery.
+
+Column	Data Type	Constraints	Description
+partner_id	SERIAL	PRIMARY KEY	Unique partner identifier
+name	VARCHAR	NOT NULL	Partner name
+region	VARCHAR		Service region
+contact_details	JSONB		Contact information
+Code Snippet:
+
+python
+Copy code
+cursor.execute("""
+    CREATE TABLE Logistics_Partners (
+        partner_id SERIAL PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        region VARCHAR,
+        contact_details JSONB
+    );
+""")
+3.4 Orders Table
+Stores order information, including customer and status details.
+
+Column	Data Type	Constraints	Description
+order_id	SERIAL	PRIMARY KEY	Unique order identifier
+customer_id	INTEGER	FOREIGN KEY	References Customers table
+status	VARCHAR		Order status
+total_amount	DECIMAL	NOT NULL	Total order amount
+created_at	TIMESTAMP	DEFAULT now()	Order creation timestamp
+Code Snippet:
+
+python
+Copy code
+cursor.execute("""
+    CREATE TABLE Orders (
+        order_id SERIAL PRIMARY KEY,
+        customer_id INTEGER REFERENCES Customers(customer_id),
+        status VARCHAR,
+        total_amount DECIMAL NOT NULL,
+        created_at TIMESTAMP DEFAULT now()
+    );
+""")
+3.5 Order_Items Table
+Stores individual items within an order.
+
+Column	Data Type	Constraints	Description
+order_item_id	SERIAL	PRIMARY KEY	Unique item identifier
+order_id	INTEGER	FOREIGN KEY	References Orders table
+product_id	INTEGER	FOREIGN KEY	References Products table
+quantity	INTEGER	NOT NULL	Quantity of product
+price	DECIMAL	NOT NULL	Price per item
+Code Snippet:
+
+python
+Copy code
+cursor.execute("""
+    CREATE TABLE Order_Items (
+        order_item_id SERIAL PRIMARY KEY,
+        order_id INTEGER REFERENCES Orders(order_id),
+        product_id INTEGER REFERENCES Products(product_id),
+        quantity INTEGER NOT NULL,
+        price DECIMAL NOT NULL
+    );
+""")
+3.6 Sales_Reports Table
+Stores sales report data for analysis and visualization.
+
+Column	Data Type	Constraints	Description
+report_id	SERIAL	PRIMARY KEY	Unique report identifier
+date_range	JSONB	NOT NULL	Start and end date
+total_sales	DECIMAL		Total sales amount
+orders_count	INTEGER		Number of orders
+Code Snippet:
+
+python
+Copy code
+cursor.execute("""
+    CREATE TABLE Sales_Reports (
+        report_id SERIAL PRIMARY KEY,
+        date_range JSONB NOT NULL,
+        total_sales DECIMAL,
+        orders_count INTEGER
+    );
+""")
+4. Relationships
+Orders → Customers: Each order is linked to a customer via customer_id.
+Order_Items → Orders: Each order item is linked to an order via order_id.
+Order_Items → Products: Each order item is linked to a product via product_id.
+5. Python Script Overview
+The Python script:
+
+Connects to PostgreSQL and creates the ecommerce_db database.
+Creates all tables with appropriate columns, constraints, and indexes.
+Uses psycopg2 for database operations.
+6. Conclusion
+This design specification ensures a robust, scalable, and efficient database schema for the e-commerce website. The Python script automates the creation of the database and tables, making it easy to deploy and maintain.
+

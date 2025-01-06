@@ -1,0 +1,521 @@
+Database Design Technical Specification Document
+
+1. Introduction
+
+This document provides a comprehensive technical specification for the PostgreSQL database derived from the provided metadata file (database_updated_schema.txt). It outlines the database structure, including schemas, tables, columns, data types, constraints, and indexes. This document serves as a reference for application developers to understand the data model and interact with the database effectively.
+
+2. Database Overview
+
+The database contains a mix of system-level and application-specific tables across multiple schemas. The primary focus appears to be within the public schema where the application’s data resides. We will concentrate our analysis here.
+
+3. Schemas
+
+The database contains the following schemas:
+
+information_schema: Contains system tables providing metadata about the database.
+
+pg_catalog: Contains system tables related to PostgreSQL's internal workings.
+
+pg_toast: Contains system tables for handling large object storage.
+
+public: This schema is the main schema for application tables.
+
+4. Table Design (Focus on public Schema)
+
+This section details the tables within the public schema, which are most relevant for application development. Each table description includes column definitions, data types, constraints, and indexes.
+
+4.1 products Table
+
+Description: Stores information about products available for sale.
+
+DDL (Data Definition Language) Command:
+
+CREATE TABLE public.products (
+    product_id INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price NUMERIC NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    category VARCHAR(255),
+    stock_quantity INTEGER,
+    CONSTRAINT products_pkey PRIMARY KEY (product_id)
+);
+
+CREATE INDEX idx_products_name ON public.products USING btree (name);
+CREATE INDEX idx_products_category ON public.products USING btree (category);
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+product_id: INTEGER, Primary Key, Unique identifier for the product.
+
+name: VARCHAR(255), NOT NULL, Name of the product.
+
+description: TEXT, Description of the product.
+
+price: NUMERIC, NOT NULL, Price of the product.
+
+created_at: TIMESTAMP WITHOUT TIME ZONE, Date and time the product was created.
+
+category: VARCHAR(255), Category the product belongs to.
+
+stock_quantity: INTEGER, Current number of items in stock.
+
+Indexes:
+
+products_pkey: UNIQUE, Primary Key on product_id.
+
+idx_products_name: INDEX, on column name.
+
+idx_products_category: INDEX, on column category.
+
+4.2 customers Table
+
+Description: Stores information about customers.
+
+DDL Command:
+
+CREATE TABLE public.customers (
+    customer_id INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(255),
+    address JSONB,
+    newsletter_opt_in BOOLEAN,
+    registration_date TIMESTAMP WITHOUT TIME ZONE,
+    subscription_status VARCHAR(255),
+    CONSTRAINT customers_pkey PRIMARY KEY (customer_id),
+    CONSTRAINT customers_email_key UNIQUE (email)
+);
+
+CREATE INDEX idx_customers_email ON public.customers USING btree (email);
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+customer_id: INTEGER, Primary Key, Unique identifier for the customer.
+
+name: VARCHAR(255), NOT NULL, Name of the customer.
+
+email: VARCHAR(255), NOT NULL, Email address of the customer, must be unique.
+
+phone: VARCHAR(255), Phone number of the customer.
+
+address: JSONB, Address of the customer stored as JSON.
+
+newsletter_opt_in: BOOLEAN, Indicates if the customer is subscribed to the newsletter.
+
+registration_date: TIMESTAMP WITHOUT TIME ZONE, Date and time the customer registered.
+
+subscription_status: VARCHAR(255), Status of the customer's subscription (e.g., active, inactive).
+
+Indexes:
+
+customers_pkey: UNIQUE, Primary Key on customer_id.
+
+customers_email_key: UNIQUE, enforces unique email addresses.
+
+idx_customers_email: INDEX, on column email.
+
+4.3 logistics_partners Table
+
+Description: Stores information about logistics partners.
+
+DDL Command:
+
+CREATE TABLE public.logistics_partners (
+  partner_id INTEGER NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  region VARCHAR(255),
+  contact_details JSONB,
+  CONSTRAINT logistics_partners_pkey PRIMARY KEY (partner_id)
+);
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+partner_id: INTEGER, Primary Key, Unique identifier for the logistics partner.
+
+name: VARCHAR(255), NOT NULL, Name of the logistics partner.
+
+region: VARCHAR(255), Region the partner services.
+
+contact_details: JSONB, Contact details for the partner stored as JSON.
+
+Indexes:
+
+logistics_partners_pkey: UNIQUE, Primary Key on partner_id.
+
+4.4 orders Table
+
+Description: Stores information about orders placed by customers.
+
+DDL Command:
+
+CREATE TABLE public.orders (
+    order_id INTEGER NOT NULL,
+    customer_id INTEGER,
+    total_amount NUMERIC NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    status VARCHAR(255),
+    CONSTRAINT orders_pkey PRIMARY KEY (order_id)
+);
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+order_id: INTEGER, Primary Key, Unique identifier for the order.
+
+customer_id: INTEGER, Foreign Key referencing the customers table.
+
+total_amount: NUMERIC, NOT NULL, Total amount of the order.
+
+created_at: TIMESTAMP WITHOUT TIME ZONE, Date and time the order was created.
+
+status: VARCHAR(255), Status of the order (e.g., pending, completed, shipped).
+
+Indexes:
+
+orders_pkey: UNIQUE, Primary Key on order_id.
+
+4.5 order_items Table
+
+Description: Stores information about items within an order.
+
+DDL Command:
+
+CREATE TABLE public.order_items (
+    order_item_id INTEGER NOT NULL,
+    order_id INTEGER,
+    product_id INTEGER,
+    quantity INTEGER NOT NULL,
+    price NUMERIC NOT NULL,
+    CONSTRAINT order_items_pkey PRIMARY KEY (order_item_id)
+ );
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+order_item_id: INTEGER, Primary Key, Unique identifier for the order item.
+
+order_id: INTEGER, Foreign Key referencing the orders table.
+
+product_id: INTEGER, Foreign Key referencing the products table.
+
+quantity: INTEGER, NOT NULL, Quantity of the product in the order.
+
+price: NUMERIC, NOT NULL, Price of the product at the time of the order.
+
+Indexes:
+
+order_items_pkey: UNIQUE, Primary Key on order_item_id.
+
+4.6 sales_reports Table
+
+Description: Stores sales report data.
+
+DDL Command:
+
+CREATE TABLE public.sales_reports (
+    report_id INTEGER NOT NULL,
+    date_range JSONB NOT NULL,
+    total_sales NUMERIC,
+    orders_count INTEGER,
+    CONSTRAINT sales_reports_pkey PRIMARY KEY (report_id)
+);
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+report_id: INTEGER, Primary Key, Unique identifier for the report.
+
+date_range: JSONB, NOT NULL, Date range covered by the report stored as JSON.
+
+total_sales: NUMERIC, Total sales amount for the report's date range.
+
+orders_count: INTEGER, Total number of orders within the report's date range.
+
+Indexes:
+
+sales_reports_pkey: UNIQUE, Primary Key on report_id.
+
+4.7 subscription_history Table
+
+Description: Tracks changes to customer subscription statuses.
+
+DDL Command:
+
+```sql
+   CREATE TABLE public.subscription_history (
+        history_id INTEGER NOT NULL,
+        customer_id INTEGER,
+        status VARCHAR(255) NOT NULL,
+        changed_at TIMESTAMP WITHOUT TIME ZONE,
+        CONSTRAINT subscription_history_pkey PRIMARY KEY (history_id)
+    );
+```
+content_copy
+download
+Use code with caution.
+
+Columns:
+
+history_id: INTEGER, Primary Key, Unique identifier for the history record.
+
+customer_id: INTEGER, Foreign Key referencing the customers table.
+
+status: VARCHAR(255), NOT NULL, New status of the subscription.
+
+changed_at: TIMESTAMP WITHOUT TIME ZONE, Date and time of the subscription status change.
+
+Indexes:
+
+subscription_history_pkey: UNIQUE, Primary Key on history_id.
+
+4.8 blog_categories Table
+
+Description: Stores blog post categories.
+
+DDL Command:
+
+CREATE TABLE public.blog_categories (
+    category_id INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    CONSTRAINT blog_categories_pkey PRIMARY KEY (category_id),
+    CONSTRAINT blog_categories_name_key UNIQUE (name)
+);
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+category_id: INTEGER, Primary Key, Unique identifier for the blog category.
+
+name: VARCHAR(255), NOT NULL, Name of the category (must be unique).
+
+Indexes:
+
+blog_categories_pkey: UNIQUE, Primary Key on category_id.
+
+blog_categories_name_key: UNIQUE, enforce unique name.
+
+4.9 blog_authors Table
+
+Description: Stores information about blog authors.
+
+DDL Command:
+
+CREATE TABLE public.blog_authors (
+    author_id INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    bio TEXT,
+    CONSTRAINT blog_authors_pkey PRIMARY KEY (author_id),
+    CONSTRAINT blog_authors_email_key UNIQUE (email)
+  );
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+author_id: INTEGER, Primary Key, Unique identifier for the author.
+
+name: VARCHAR(255), NOT NULL, Name of the author.
+
+email: VARCHAR(255), NOT NULL, Email of the author (must be unique).
+
+bio: TEXT, Biography of the author.
+
+Indexes:
+
+blog_authors_pkey: UNIQUE, Primary Key on author_id.
+
+blog_authors_email_key: UNIQUE, enforce unique email.
+
+4.10 blog_posts Table
+
+Description: Stores blog posts.
+
+DDL Command:
+
+CREATE TABLE public.blog_posts (
+    post_id INTEGER NOT NULL,
+    author_id INTEGER,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    excerpt TEXT,
+    published_at TIMESTAMP WITHOUT TIME ZONE,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    category_id INTEGER,
+     CONSTRAINT blog_posts_pkey PRIMARY KEY (post_id)
+  );
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+post_id: INTEGER, Primary Key, Unique identifier for the blog post.
+
+author_id: INTEGER, Foreign Key referencing the blog_authors table.
+
+title: VARCHAR(255), NOT NULL, Title of the blog post.
+
+content: TEXT, NOT NULL, Content of the blog post.
+
+excerpt: TEXT, Short preview or summary of the post.
+
+published_at: TIMESTAMP WITHOUT TIME ZONE, Date and time the post was published.
+
+updated_at: TIMESTAMP WITHOUT TIME ZONE, Last date and time the post was updated.
+
+category_id: INTEGER, Foreign Key referencing the blog_categories table.
+
+Indexes:
+
+blog_posts_pkey: UNIQUE, Primary Key on post_id.
+
+4.11 blog_comments Table
+
+Description: Stores comments on blog posts.
+
+DDL Command:
+
+CREATE TABLE public.blog_comments (
+    comment_id INTEGER NOT NULL,
+    post_id INTEGER,
+    author_name VARCHAR(255) NOT NULL,
+    author_email VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    commented_at TIMESTAMP WITHOUT TIME ZONE,
+    CONSTRAINT blog_comments_pkey PRIMARY KEY (comment_id)
+);
+content_copy
+download
+Use code with caution.
+SQL
+
+Columns:
+
+comment_id: INTEGER, Primary Key, Unique identifier for the comment.
+
+post_id: INTEGER, Foreign Key referencing the blog_posts table.
+
+author_name: VARCHAR(255), NOT NULL, Name of the commenter.
+
+author_email: VARCHAR(255), NOT NULL, Email of the commenter.
+
+content: TEXT, NOT NULL, Content of the comment.
+
+commented_at: TIMESTAMP WITHOUT TIME ZONE, Date and time the comment was created.
+
+Indexes:
+
+blog_comments_pkey: UNIQUE, Primary Key on comment_id.
+
+5. System Tables
+
+The metadata also includes numerous PostgreSQL system tables. These are primarily used for internal operations and are not usually directly accessed by application code. Examples include tables prefixed with pg_ and information_schema. While they aren't the focus of this application design, their presence indicates a fully functional PostgreSQL instance.
+
+6. Data Types
+
+The database uses a variety of standard PostgreSQL data types, such as:
+
+INTEGER: For whole numbers.
+
+VARCHAR(n): For variable-length character strings up to n characters.
+
+TEXT: For variable-length character strings of unlimited length.
+
+NUMERIC: For fixed-precision numbers.
+
+BOOLEAN: For true/false values.
+
+TIMESTAMP WITHOUT TIME ZONE: For date and time values without time zone information.
+
+JSONB: For storing JSON documents.
+
+OID: Object identifiers (used internally by PostgreSQL).
+
+ARRAY: Array types for storing collections.
+
+7. Indexes
+
+Indexes are created on several columns in the public schema to improve query performance. These include:
+
+Primary key indexes for uniqueness and efficient record retrieval.
+
+Indexes on frequently queried columns like name in products, email in customers.
+
+8. Constraints
+
+Constraints are used to ensure data integrity. Common constraints include:
+
+NOT NULL: Ensures that a column cannot contain a null value.
+
+UNIQUE: Ensures that all values in a column (or a group of columns) are distinct.
+
+PRIMARY KEY: A combination of NOT NULL and UNIQUE, identifies a row uniquely.
+
+FOREIGN KEY: Ensures referential integrity between tables.
+
+9. Replication Considerations
+
+To duplicate this database design, you can execute the DDL commands provided within each table description. You will need to first create the database then the extensions.
+
+-- Create Database
+CREATE DATABASE <your_database_name>
+
+-- Connect to the database
+\c <your_database_name>
+
+-- Create extensions (if any), example:
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Execute all the DDL commands listed above to create your tables
+content_copy
+download
+Use code with caution.
+SQL
+
+To ensure that there are no issues while running the schema, consider executing each table DDL individually and verify its success before continuing with the next table.
+
+10. Application Development Guidance
+
+Data Access: Use standard SQL queries to interact with the database. Libraries like psycopg2 (Python), JDBC (Java), or equivalent for other languages can facilitate database connections and interactions.
+
+Object-Relational Mapping (ORM): Consider using an ORM (e.g., Django ORM, SQLAlchemy) to simplify database interaction and map tables to objects in your code.
+
+Data Validation: Implement client-side and server-side validation to ensure that data submitted to the database is valid.
+
+Security: Implement appropriate security measures, such as user authentication and authorization, to protect the database from unauthorized access.
+
+11. Conclusion
+
+This document has provided a detailed technical specification for the PostgreSQL database, focusing on the tables within the public schema which are most relevant for application development. Developers should use this document as a guide for interacting with the database, building applications, and maintaining data integrity.
+
+This provides a starting point. You may wish to elaborate on specific aspects based on the requirements of your applications. This was quite a large document to generate and there may still be some minor corrections or enhancements based on the specific needs of the application.

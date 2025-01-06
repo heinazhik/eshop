@@ -1,6 +1,80 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+
+interface RecentOrder {
+  order_id: number;
+  customer_name: string;
+  created_at: string;
+  status: string;
+  total_amount: number;
+}
 
 const DashboardTab = () => {
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalSales, setTotalSales] = useState(0);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+
+  useEffect(() => {
+    const fetchTotalProducts = async () => {
+      try {
+        const response = await fetch('/api/admin/total-products');
+        const data = await response.json();
+        setTotalProducts(data.totalProducts);
+      } catch (error) {
+        console.error('Error fetching total products:', error);
+      }
+    };
+
+    const fetchTotalCustomers = async () => {
+      try {
+        const response = await fetch('/api/admin/total-customers');
+        const data = await response.json();
+        setTotalCustomers(data.totalCustomers);
+      } catch (error) {
+        console.error('Error fetching total customers:', error);
+      }
+    };
+
+    const fetchTotalOrders = async () => {
+      try {
+        const response = await fetch('/api/admin/total-orders');
+        const data = await response.json();
+        setTotalOrders(data.totalOrders);
+      } catch (error) {
+        console.error('Error fetching total orders:', error);
+      }
+    };
+
+    const fetchTotalSales = async () => {
+      try {
+        const response = await fetch('/api/admin/total-sales');
+        const data = await response.json();
+        setTotalSales(data.totalSales);
+      } catch (error) {
+        console.error('Error fetching total sales:', error);
+      }
+    };
+
+    const fetchRecentOrders = async () => {
+      try {
+        const response = await fetch('/api/admin/recent-orders');
+        const data = await response.json();
+        setRecentOrders(data);
+      } catch (error) {
+        console.error('Error fetching recent orders:', error);
+      }
+    };
+
+    fetchTotalProducts();
+    fetchTotalCustomers();
+    fetchTotalOrders();
+    fetchTotalSales();
+    fetchRecentOrders();
+  }, []);
+
   return (
     <div>
       {/* Welcome Message */}
@@ -11,22 +85,22 @@ const DashboardTab = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded shadow p-4">
+        <a href="/app/products" className="bg-white rounded shadow p-4 block">
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">Total Products</h3>
-          <p className="text-2xl font-bold">120</p>
-        </div>
-        <div className="bg-white rounded shadow p-4">
+          <p className="text-2xl font-bold">{totalProducts}</p>
+        </a>
+        <a href="/app/admin/customers" className="bg-white rounded shadow p-4 block">
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">Total Customers</h3>
-          <p className="text-2xl font-bold">85</p>
-        </div>
-        <div className="bg-white rounded shadow p-4">
+          <p className="text-2xl font-bold">{totalCustomers}</p>
+        </a>
+        <a href="/app/admin/orders" className="bg-white rounded shadow p-4 block">
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">Total Orders</h3>
-          <p className="text-2xl font-bold">53</p>
-        </div>
-        <div className="bg-white rounded shadow p-4">
+          <p className="text-2xl font-bold">{totalOrders}</p>
+        </a>
+        <a href="/app/admin/sales-reports" className="bg-white rounded shadow p-4 block">
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">Total Sales</h3>
-          <p className="text-2xl font-bold">$12,500</p>
-        </div>
+          <p className="text-2xl font-bold">${totalSales}</p>
+        </a>
       </div>
 
       {/* Recent Orders */}
@@ -44,21 +118,15 @@ const DashboardTab = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap">#1001</td>
-                <td className="px-6 py-4 whitespace-nowrap">John Doe</td>
-                <td className="px-6 py-4 whitespace-nowrap">2023-12-19</td>
-                <td className="px-6 py-4 whitespace-nowrap">Shipped</td>
-                <td className="px-6 py-4 whitespace-nowrap">$45.00</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap">#1002</td>
-                <td className="px-6 py-4 whitespace-nowrap">Jane Smith</td>
-                <td className="px-6 py-4 whitespace-nowrap">2023-12-18</td>
-                <td className="px-6 py-4 whitespace-nowrap">Processing</td>
-                <td className="px-6 py-4 whitespace-nowrap">$78.00</td>
-              </tr>
-              {/* More orders */}
+              {recentOrders.map((order) => (
+                <tr key={order.order_id}>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.order_id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.customer_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{new Date(order.created_at).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.status}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">${order.total_amount.toFixed(2)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -68,9 +136,15 @@ const DashboardTab = () => {
       <div className="mt-6">
         <h3 className="text-lg font-semibold mb-4">Shortcuts</h3>
         <div className="space-x-4">
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Product</button>
-          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">View Orders</button>
-          <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Generate Reports</button>
+          <a href="/app/admin/products" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Add Product
+          </a>
+          <a href="/app/admin/orders" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            View Orders
+          </a>
+          <a href="/app/admin/reports" className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+            Generate Reports
+          </a>
         </div>
       </div>
     </div>

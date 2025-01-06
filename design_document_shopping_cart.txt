@@ -1,0 +1,217 @@
+Shopping Cart Checkout Page Design Document
+1. Overview
+This document outlines the design and functionality of the Shopping Cart Checkout Page (http://localhost:3000/cart) for the e-commerce platform. The page allows customers to review their cart, adjust item quantities, remove items, enter shipping and payment details, and place an order. The design is based on the current database schema, utilizing the Products, Customers, and Orders tables.
+
+2. Page Layout
+2.1 Header
+Logo: Link to the homepage.
+
+Navigation Links: Links to other sections (e.g., Products, Blog, Account).
+
+Cart Icon: Displays the number of items in the cart.
+
+2.2 Main Content
+2.2.1 Cart Items Section
+Displays a list of items in the cart.
+
+Field	Description
+Product Image	Thumbnail image of the product.
+Product Name	Name of the product (linked to the product detail page).
+Price	Price per unit of the product.
+Quantity	Input field to adjust the quantity of the product (default: 1).
+Subtotal	Calculated as Price * Quantity.
+Remove Button	Button to remove the item from the cart.
+2.2.2 Shipping Address Section
+Allows the customer to enter or select a shipping address.
+
+Field	Description
+Full Name	Input field for the customer's full name.
+Address Line 1	Input field for the street address.
+Address Line 2	Optional input field for additional address details.
+City	Input field for the city.
+State/Province	Dropdown or input field for the state/province.
+Postal Code	Input field for the postal code.
+Country	Dropdown for selecting the country.
+2.2.3 Payment Method Section
+Allows the customer to select a payment method and enter payment details.
+
+Field	Description
+Payment Method	Radio buttons for selecting a payment method (Visa, Mastercard, PayPal).
+Card Number	Input field for the card number (if Visa/Mastercard is selected).
+Expiration Date	Input field for the card's expiration date.
+CVV	Input field for the card's CVV.
+PayPal Email	Input field for the PayPal email (if PayPal is selected).
+2.2.4 Order Summary Section
+Displays a summary of the order, including subtotals and the total amount.
+
+Field	Description
+Subtotal	Sum of Price * Quantity for all items in the cart.
+Shipping Cost	Fixed or calculated shipping cost.
+Tax	Calculated tax based on the customer's location.
+Total Amount	Total amount to pay (Subtotal + Shipping Cost + Tax).
+2.2.5 Order Button
+Place Order Button: Button to submit the order. Enabled only if all required fields are filled in correctly.
+
+3. Functionality
+3.1 Cart Items Section
+Adjust Quantity:
+
+The customer can increase or decrease the quantity of each item.
+
+The subtotal for each item is updated dynamically.
+
+Remove Item:
+
+Clicking the "Remove" button removes the item from the cart.
+
+The cart summary is updated to reflect the changes.
+
+3.2 Shipping Address Section
+Address Validation:
+
+All fields are required except for "Address Line 2".
+
+The form validates the postal code and ensures the address is complete.
+
+Saved Addresses:
+
+If the customer is logged in, they can select a saved address from their profile.
+
+3.3 Payment Method Section
+Payment Validation:
+
+The card number, expiration date, and CVV are validated for Visa/Mastercard.
+
+The PayPal email is validated if PayPal is selected.
+
+Dynamic Fields:
+
+Only the relevant fields for the selected payment method are displayed.
+
+3.4 Order Summary Section
+Dynamic Updates:
+
+The subtotal, shipping cost, tax, and total amount are updated dynamically as the customer adjusts the cart or enters their address.
+
+Shipping Cost Calculation:
+
+Shipping cost is calculated based on the customer's location and the total weight of the items.
+
+3.5 Place Order Button
+Validation:
+
+The button is enabled only if:
+
+The cart is not empty.
+
+A valid shipping address is provided.
+
+A valid payment method is selected.
+
+Order Submission:
+
+Clicking the button submits the order and redirects the customer to an order confirmation page.
+
+4. Database Integration
+4.1 Cart Items
+Data Source: Products table.
+
+Fields Used:
+
+product_id: Unique identifier for the product.
+
+name: Name of the product.
+
+price: Price per unit of the product.
+
+stock_quantity: Used to validate if the requested quantity is available.
+
+4.2 Shipping Address
+Data Source: Customers table.
+
+Fields Used:
+
+address: JSONB field containing the customer's address details.
+
+If the customer is logged in, the address is pre-filled from their profile.
+
+4.3 Order Submission
+Data Flow:
+
+Orders Table:
+
+A new row is created in the Orders table with the following fields:
+
+customer_id: ID of the customer placing the order.
+
+status: Set to "Pending".
+
+total_amount: Total amount of the order.
+
+created_at: Timestamp of the order.
+
+Order_Items Table:
+
+A new row is created in the Order_Items table for each item in the cart with the following fields:
+
+order_id: ID of the order.
+
+product_id: ID of the product.
+
+quantity: Quantity of the product.
+
+price: Price of the product at the time of order.
+
+5. Error Handling
+Out of Stock:
+
+If a product is out of stock, the customer is notified, and the item is removed from the cart.
+
+Invalid Address:
+
+If the address is invalid, the customer is prompted to correct it.
+
+Payment Failure:
+
+If the payment fails, the customer is notified and prompted to try again.
+
+6. Example Workflow
+The customer adds items to the cart and navigates to the checkout page.
+
+The customer reviews the cart, adjusts quantities, and removes items if necessary.
+
+The customer enters or selects a shipping address.
+
+The customer selects a payment method and enters payment details.
+
+The customer reviews the order summary and clicks "Place Order".
+
+The order is submitted, and the customer is redirected to the order confirmation page.
+
+7. Mockup
+Below is a simplified mockup of the shopping cart checkout page:
+
+Copy
++-----------------------------------------------------+
+| Logo                                                |
++-----------------------------------------------------+
+| Cart Items                                          |
+| +----------------+----------------+----------------+|
+| | Product Image  | Product Name   | Price          ||
+| | Quantity Input | Subtotal       | Remove Button  ||
+| +----------------+----------------+----------------+|
+| Shipping Address                                   |
+| +------------------------------------------------+|
+| | Full Name, Address, City, State, Postal Code   ||
+| +------------------------------------------------+|
+| Payment Method                                     |
+| +------------------------------------------------+|
+| | Visa/Mastercard/PayPal, Card Number, Exp Date  ||
+| +------------------------------------------------+|
+| Order Summary                                      |
+| +------------------------------------------------+|
+| | Subtotal, Shipping Cost, Tax, Total Amount     ||
+| +------------------------------------------------+|
+| [Place Order Button]                              |
++-----------------------------------------------------+
+This design document provides a comprehensive guide for implementing the shopping cart checkout page.

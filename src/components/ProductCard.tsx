@@ -1,27 +1,40 @@
 import Link from 'next/link';
-import { Product } from '@/types';
+import { formatCurrency } from '../../lib/utils';
+import { Product } from '../types';
 
-const ProductCard = ({ product }: { product: Product }) => {
+interface ProductCardProps {
+  product: {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    imageUrl: string;
+    category: string;
+    createdAt: Date;
+  };
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
-    <Link href={`/products/${product.id}`}>
-      <div className="rounded-lg shadow-lg p-4 hover:shadow-xl transition duration-300 bg-secondary-50">
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full h-48 object-cover rounded-lg mb-4"
-        />
-        <h3 className="text-lg font-bold text-primary-800 mb-2">{product.name}</h3>
-        <p className="text-secondary-700 mb-4">{product.description}</p>
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-bold text-primary-900">
-            ${product.price.toFixed(2)}
-          </span>
-          <button className="bg-accent-500 hover:bg-accent-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
-            View
-          </button>
-        </div>
+    <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden">
+      <Link href={`/products/${product.id}`}>
+        <img className="w-full h-56 object-cover" src={product.imageUrl} alt={product.name} />
+      </Link>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-text-light dark:text-text-dark mb-2">
+          <Link href={`/products/${product.id}`} className="hover:text-primary-accent transition-colors">
+            {product.name}
+          </Link>
+        </h3>
+        <p className="text-secondary-accent font-bold mb-4">{formatCurrency(product.price)}</p>
+        <Link
+          href={`/products/${product.id}`}
+          className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-primary-accent hover:bg-secondary-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-accent transition-colors"
+        >
+          View
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 };
 
