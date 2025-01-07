@@ -1,0 +1,177 @@
+Python script that creates all the missing database objects referenced in the updated design document but not present in the original database design. This script ensures that the Next.js code for the /admin page will not crash or result in errors.
+
+The script uses the psycopg2 library to connect to the PostgreSQL database and execute the necessary SQL commands. Make sure you have psycopg2 installed (pip install psycopg2).
+
+Python Script to Create Missing Database Objects
+python
+Copy
+import psycopg2
+from psycopg2 import sql
+
+# Database connection parameters
+DB_NAME = "ecommerce_db"
+DB_USER = "admin"
+DB_PASSWORD = "admin123"
+DB_HOST = "localhost"
+DB_PORT = "5432"
+
+# Connect to the PostgreSQL database
+def connect_to_db():
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
+        )
+        print("Connected to the database successfully!")
+        return conn
+    except Exception as e:
+        print(f"Error connecting to the database: {e}")
+        return None
+
+# Create missing tables and constraints
+def create_missing_database_objects(conn):
+    try:
+        cursor = conn.cursor()
+
+        # Create the `logistics_partners` table (if not exists)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS logistics_partners (
+                partner_id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                region VARCHAR(255),
+                contact_details JSONB
+            );
+        """)
+
+        # Create the `sales_reports` table (if not exists)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sales_reports (
+                report_id SERIAL PRIMARY KEY,
+                date_range JSONB NOT NULL,
+                total_sales NUMERIC,
+                orders_count INTEGER
+            );
+        """)
+
+        # Create the `order_items` table (if not exists)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS order_items (
+                order_item_id SERIAL PRIMARY KEY,
+                order_id INTEGER REFERENCES orders(order_id),
+                product_id INTEGER REFERENCES products(product_id),
+                quantity INTEGER NOT NULL,
+                price NUMERIC NOT NULL
+            );
+        """)
+
+        # Add missing foreign key constraints (if not exists)
+        cursor.execute("""
+            ALTER TABLE orders
+            ADD CONSTRAINT IF NOT EXISTS orders_customer_id_fkey
+            FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
+        """)
+
+        cursor.execute("""
+            ALTER TABLE order_items
+            ADD CONSTRAINT IF NOT EXISTS order_items_order_id_fkey
+            FOREIGN KEY (order_id) REFERENCES orders(order_id);
+        """)
+
+        cursor.execute("""
+            ALTER TABLE order_items
+            ADD CONSTRAINT IF NOT EXISTS order_items_product_id_fkey
+            FOREIGN KEY (product_id) REFERENCES products(product_id);
+        """)
+
+        # Commit the changes
+        conn.commit()
+        print("Missing database objects created successfully!")
+    except Exception as e:
+        print(f"Error creating database objects: {e}")
+        conn.rollback()
+    finally:
+        if cursor:
+            cursor.close()
+
+# Main function
+def main():
+    conn = connect_to_db()
+    if conn:
+        create_missing_database_objects(conn)
+        conn.close()
+        print("Database connection closed.")
+
+if __name__ == "__main__":
+    main()
+Explanation of the Script
+Database Connection:
+
+The script connects to the PostgreSQL database using the provided credentials (DB_NAME, DB_USER, DB_PASSWORD, etc.).
+
+If the connection fails, it prints an error message.
+
+Missing Tables:
+
+The script creates the following tables if they do not already exist:
+
+logistics_partners: Stores logistics partner details.
+
+sales_reports: Stores sales report data.
+
+order_items: Stores items associated with orders.
+
+Foreign Key Constraints:
+
+The script adds missing foreign key constraints to ensure referential integrity:
+
+orders.customer_id references customers.customer_id.
+
+order_items.order_id references orders.order_id.
+
+order_items.product_id references products.product_id.
+
+Error Handling:
+
+The script includes error handling to roll back changes if an error occurs during execution.
+
+Commit and Close:
+
+Changes are committed to the database, and the connection is closed after execution.
+
+How to Run the Script
+Install psycopg2:
+
+bash
+Copy
+pip install psycopg2
+Save the Script:
+Save the script to a file, e.g., create_missing_db_objects.py.
+
+Run the Script:
+Execute the script using Python:
+
+bash
+Copy
+python3 create_missing_db_objects.py
+Verify the Changes:
+Connect to the PostgreSQL database and verify that the missing tables and constraints have been created:
+
+bash
+Copy
+psql -U admin -d ecommerce_db -c "\dt"
+psql -U admin -d ecommerce_db -c "\d+ logistics_partners"
+psql -U admin -d ecommerce_db -c "\d+ sales_reports"
+psql -U admin -d ecommerce_db -c "\d+ order_items"
+Expected Output
+If the script runs successfully, you should see the following output:
+
+Copy
+Connected to the database successfully!
+Missing database objects created successfully!
+Database connection closed.
+Conclusion
+This script ensures that all the missing database objects required for the /admin page are created in the PostgreSQL database. This will prevent the Next.js code from crashing or resulting in errors due to missing tables or constraints.
+

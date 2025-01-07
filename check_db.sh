@@ -1,0 +1,6 @@
+sudo -u postgres psql -d ecommerce_db -c "\dt"
+sudo -u postgres psql -d ecommerce_db -c "\d+ logistics_partners"
+sudo -u postgres psql -d ecommerce_db -c "\d+ sales_reports"
+sudo -u postgres psql -d ecommerce_db -c "\d+ order_items"
+sudo -u postgres psql -d ecommerce_db -c "\d+ orders"
+sudo -u postgres psql -d ecommerce_db -c "\d+ order_items"

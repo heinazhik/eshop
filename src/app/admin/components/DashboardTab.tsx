@@ -124,7 +124,7 @@ const DashboardTab = () => {
                   <td className="px-6 py-4 whitespace-nowrap">{order.customer_name}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{new Date(order.created_at).toLocaleDateString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{order.status}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">${order.total_amount.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">${Number(order.total_amount).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

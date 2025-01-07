@@ -1,0 +1,419 @@
+Design the missing components and provide the relevant PostgreSQL database object creation scripts.
+
+1. LogisticsPartners Tab
+a. PostgreSQL Database Table
+The logistics_partners table is already defined in the database. Here’s the structure:
+
+sql
+Copy
+CREATE TABLE logistics_partners (
+    partner_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    region VARCHAR(255),
+    contact_details JSONB
+);
+b. TypeScript Interface
+Add the LogisticsPartner interface to types/index.ts:
+
+typescript
+Copy
+export interface LogisticsPartner {
+  partner_id: number;
+  name: string;
+  region?: string;
+  contact_details: any; // JSONB data
+}
+c. Components
+PartnerTable.tsx (Displays a list of logistics partners):
+
+tsx
+Copy
+import React from 'react';
+import { LogisticsPartner } from '@/types';
+import { Button } from '../UI/Button';
+
+interface PartnerTableProps {
+  partners: LogisticsPartner[];
+  onEdit: (partner: LogisticsPartner) => void;
+}
+
+const PartnerTable: React.FC<PartnerTableProps> = ({ partners, onEdit }) => {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded">
+        <thead>
+          <tr>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">ID</th>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Name</th>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Region</th>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Contact Details</th>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {partners.map((partner) => (
+            <tr key={partner.partner_id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{partner.partner_id}</td>
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{partner.name}</td>
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{partner.region}</td>
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">
+                {JSON.stringify(partner.contact_details)}
+              </td>
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">
+                <Button size="sm" onClick={() => onEdit(partner)}>Edit</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default PartnerTable;
+AddEditPartnerModal.tsx (Modal for adding/editing logistics partners):
+
+tsx
+Copy
+import React, { useState, useEffect } from 'react';
+import { Modal } from '../UI/Modal';
+import { Input } from '../UI/Input';
+import { Button } from '../UI/Button';
+import { LogisticsPartner } from '@/types';
+import apiFetch from '@/utils/api';
+
+interface AddEditPartnerModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  partner: LogisticsPartner | null;
+}
+
+const AddEditPartnerModal: React.FC<AddEditPartnerModalProps> = ({ isOpen, onClose, partner }) => {
+  const [name, setName] = useState('');
+  const [region, setRegion] = useState('');
+  const [contactDetails, setContactDetails] = useState('{}');
+  const [isEdit, setIsEdit] = useState(false);
+
+  useEffect(() => {
+    if (partner) {
+      setIsEdit(true);
+      setName(partner.name);
+      setRegion(partner.region || '');
+      setContactDetails(JSON.stringify(partner.contact_details));
+    } else {
+      setIsEdit(false);
+      setName('');
+      setRegion('');
+      setContactDetails('{}');
+    }
+  }, [partner]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const partnerData = {
+        name,
+        region,
+        contact_details: JSON.parse(contactDetails),
+      };
+      if (isEdit && partner) {
+        await apiFetch(`/logistics-partners/${partner.partner_id}`, { method: 'PUT', body: partnerData });
+        alert('Partner updated successfully!');
+      } else {
+        await apiFetch('/logistics-partners', { method: 'POST', body: partnerData });
+        alert('Partner added successfully!');
+      }
+      onClose();
+    } catch (error: any) {
+      alert(error.message || 'Error saving partner!');
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? 'Edit Logistics Partner' : 'Add Logistics Partner'}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div>
+          <Input type="text" placeholder="Region" value={region} onChange={(e) => setRegion(e.target.value)} />
+        </div>
+        <div>
+          <Input
+            type="text"
+            placeholder="Contact Details (JSON)"
+            value={contactDetails}
+            onChange={(e) => setContactDetails(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit">{isEdit ? 'Update Partner' : 'Add Partner'}</Button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+export default AddEditPartnerModal;
+PartnerFilter.tsx (Filter for logistics partners):
+
+tsx
+Copy
+import React, { useState, useEffect } from 'react';
+import { LogisticsPartner } from '@/types';
+import { Input } from '../UI/Input';
+
+interface PartnerFilterProps {
+  partners: LogisticsPartner[];
+  onFilter: (filtered: LogisticsPartner[] | null) => void;
+}
+
+const PartnerFilter: React.FC<PartnerFilterProps> = ({ partners, onFilter }) => {
+  const [nameFilter, setNameFilter] = useState('');
+  const [regionFilter, setRegionFilter] = useState('');
+  const [regionOptions, setRegionOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (partners) {
+      const regions = [...new Set(partners.map((partner) => partner.region).filter(Boolean))];
+      setRegionOptions(regions as string[]);
+    }
+  }, [partners]);
+
+  useEffect(() => {
+    if (partners) {
+      let filtered = partners;
+      if (nameFilter) {
+        filtered = filtered.filter((partner) =>
+          partner.name.toLowerCase().includes(nameFilter.toLowerCase())
+        );
+      }
+      if (regionFilter) {
+        filtered = filtered.filter((partner) => partner.region === regionFilter);
+      }
+      onFilter(filtered.length > 0 ? filtered : null);
+    } else {
+      onFilter(null);
+    }
+  }, [nameFilter, regionFilter, partners, onFilter]);
+
+  return (
+    <div className="flex flex-wrap gap-4 mb-4">
+      <div className="flex-1">
+        <Input
+          type="text"
+          placeholder="Filter by name"
+          value={nameFilter}
+          onChange={(e) => setNameFilter(e.target.value)}
+        />
+      </div>
+      <div className="flex-1">
+        <select
+          className="border rounded p-2 w-full bg-[var(--card-light)] text-[var(--text-light)] dark:bg-[var(--card-dark)] dark:text-[var(--text-dark)]"
+          value={regionFilter}
+          onChange={(e) => setRegionFilter(e.target.value)}
+        >
+          <option value="">Filter by Region</option>
+          {regionOptions.map((region) => (
+            <option key={region} value={region}>
+              {region}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+};
+
+export default PartnerFilter;
+2. SalesReports Tab
+a. PostgreSQL Database Table
+The sales_reports table is already defined in the database. Here’s the structure:
+
+sql
+Copy
+CREATE TABLE sales_reports (
+    report_id SERIAL PRIMARY KEY,
+    date_range JSONB NOT NULL,
+    total_sales NUMERIC,
+    orders_count INTEGER
+);
+b. TypeScript Interface
+Add the SalesReport interface to types/index.ts:
+
+typescript
+Copy
+export interface SalesReport {
+  report_id: number;
+  date_range: any; // JSONB data
+  total_sales: number;
+  orders_count: number;
+}
+c. Components
+ReportGenerationForm.tsx (Form for generating sales reports):
+
+tsx
+Copy
+import React, { useState } from 'react';
+import { Input } from '../UI/Input';
+import { Button } from '../UI/Button';
+import apiFetch from '@/utils/api';
+import { SalesReport } from '@/types';
+
+interface ReportGenerationFormProps {
+  onReportGenerated: (report: SalesReport) => void;
+}
+
+const ReportGenerationForm: React.FC<ReportGenerationFormProps> = ({ onReportGenerated }) => {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const reportData: SalesReport = await apiFetch('/sales-reports', {
+        method: 'POST',
+        body: {
+          date_range: {
+            start: startDate,
+            end: endDate,
+          },
+        },
+      });
+      onReportGenerated(reportData);
+      alert('Report generated successfully!');
+    } catch (error: any) {
+      alert(error.message || 'Error generating report');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-4 mb-4">
+      <div className="flex-1">
+        <Input
+          type="date"
+          placeholder="Start Date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          required
+        />
+      </div>
+      <div className="flex-1">
+        <Input
+          type="date"
+          placeholder="End Date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          required
+        />
+      </div>
+      <Button type="submit">Generate Report</Button>
+    </form>
+  );
+};
+
+export default ReportGenerationForm;
+ReportTable.tsx (Displays a list of sales reports):
+
+tsx
+Copy
+import React from 'react';
+import { SalesReport } from '@/types';
+import { formatDate } from '../common';
+
+interface ReportTableProps {
+  reports: SalesReport[];
+}
+
+const ReportTable: React.FC<ReportTableProps> = ({ reports }) => {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded">
+        <thead>
+          <tr>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Report ID</th>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Date Range</th>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Total Sales</th>
+            <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">Orders Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reports.map((report) => (
+            <tr key={report.report_id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{report.report_id}</td>
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">
+                {formatDate(report.date_range?.start)} - {formatDate(report.date_range?.end)}
+              </td>
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">${report.total_sales}</td>
+              <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{report.orders_count}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default ReportTable;
+ReportChart.tsx (Displays a chart for sales reports):
+
+tsx
+Copy
+import React from 'react';
+import { SalesReport } from '@/types';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+interface ReportChartProps {
+  report: SalesReport;
+}
+
+const ReportChart: React.FC<ReportChartProps> = ({ report }) => {
+  const chartData = {
+    labels: ['Sales', 'Orders'],
+    datasets: [
+      {
+        label: 'Report Summary',
+        data: [report.total_sales, report.orders_count],
+        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Sales Report Summary',
+      },
+    },
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+      <Bar data={chartData} options={options} />
+    </div>
+  );
+};
+
+export default ReportChart;
+3. Folder Structure
+The folder structure you provided is correct and aligns with the components we’ve designed. Ensure the new components are placed in the appropriate folders:
+
+LogisticsPartners: PartnerTable.tsx, AddEditPartnerModal.tsx, PartnerFilter.tsx
+
+SalesReports: ReportGenerationForm.tsx, ReportTable.tsx, ReportChart.tsx
+
+4. Testing
+Test the new components with mock data to ensure they render correctly.
+
+Verify that the API endpoints (/logistics-partners, /sales-reports) are correctly implemented in the backend.
+
