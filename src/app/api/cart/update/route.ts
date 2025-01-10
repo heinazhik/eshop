@@ -1,21 +1,20 @@
+import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import pool from '../../../../../lib/db';
-
-// Placeholder cart ID - replace with actual user's cart ID
-const CART_ID = 1;
 
 export async function POST(request: Request) {
+  const { product_id, quantity } = await request.json();
+
   try {
-    const { product_id, quantity } = await request.json();
-    const client = await pool.connect();
-    await client.query(
-      'UPDATE cart_items SET quantity = $1 WHERE cart_id = $2 AND product_id = $3',
-      [quantity, CART_ID, product_id]
-    );
-    client.release();
+    // Update the quantity of the item in the cart
+    const query = `
+      UPDATE order_items
+      SET quantity = $1
+      WHERE product_id = $2
+      AND order_id = (SELECT order_id FROM orders WHERE status = 'pending' LIMIT 1);
+    `;
+    await db.query(query, [quantity, product_id]);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating item quantity in cart:', error);
-    return NextResponse.json({ error: 'Failed to update item quantity in cart' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update cart item' }, { status: 500 });
   }
 }

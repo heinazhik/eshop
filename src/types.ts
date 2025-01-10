@@ -5,8 +5,9 @@ export interface Product {
   price: number;
   image_url?: string;
   category: string;
-  created_at: string;
+  created_at: Date;
   stock_quantity: number;
+  featured: boolean;
 }
 
 export interface Customer {

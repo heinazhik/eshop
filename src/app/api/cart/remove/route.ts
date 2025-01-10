@@ -1,26 +1,19 @@
+import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { db } from '../../../../../lib/db';
 
 export async function DELETE(request: Request) {
+  const { productId } =  await request.json();
+
   try {
-    const { searchParams } = new URL(request.url);
-    const productId = searchParams.get('productId');
-
-    if (!productId) {
-      return new NextResponse('Product ID is required', { status: 400 });
-    }
-
-    const numericProductId = parseInt(productId, 10);
-
-    if (isNaN(numericProductId)) {
-      return new NextResponse('Invalid product ID', { status: 400 });
-    }
-
-    await db.query('DELETE FROM order_items WHERE product_id = $1', [numericProductId]);
-
+    // Remove the item from the cart
+    const query = `
+      DELETE FROM order_items
+      WHERE product_id = $1
+      AND order_id = (SELECT order_id FROM orders WHERE status = 'pending' LIMIT 1);
+    `;
+    await db.query(query, [productId]);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting cart item:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    return NextResponse.json({ error: 'Failed to remove cart item' }, { status: 500 });
   }
 }

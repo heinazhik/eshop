@@ -1,40 +1,30 @@
+import React from 'react';
 import Link from 'next/link';
-import { formatCurrency } from '../../lib/utils';
-import { Product } from '../types';
+import { Product } from 'types'; // Changed from '../types.js' to '../types'
 
 interface ProductCardProps {
-  product: {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    imageUrl: string;
-    category: string;
-    createdAt: Date;
-  };
+  product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  // Ensure price is a number before using toFixed
+  const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+
   return (
-    <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden">
-      <Link href={`/products/${product.id}`}>
-        <img className="w-full h-56 object-cover" src={product.imageUrl} alt={product.name} />
-      </Link>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-text-light dark:text-text-dark mb-2">
-          <Link href={`/products/${product.id}`} className="hover:text-primary-accent transition-colors">
-            {product.name}
-          </Link>
-        </h3>
-        <p className="text-secondary-accent font-bold mb-4">{formatCurrency(product.price)}</p>
-        <Link
-          href={`/products/${product.id}`}
-          className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-primary-accent hover:bg-secondary-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-accent transition-colors"
-        >
-          View
-        </Link>
+    <Link href={`/products/${product.product_id}`} key={product.product_id}>
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <img
+          src={product.image_url || '/placeholder.jpg'}
+          alt={product.name}
+          className="w-full h-56 object-cover"
+        />
+        <div className="p-4">
+          <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
+          <p className="text-gray-600">${price.toFixed(2)}</p>
+          {/* You can add more details here if needed */}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

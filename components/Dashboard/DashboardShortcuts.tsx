@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../UI/Button.jsx';
-import Link from 'next/link.js';
+import Link from 'next/link';
 
 const DashboardShortcuts: React.FC = () => {
   return (

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Customer, Order } from '../../types/index.ts';
-import useFetch from '../../hooks/useFetch.ts';
-import { formatDate } from '../common.ts';
+import { Customer, Order } from '../../types/index.js';
+import useFetch from '../../hooks/useFetch.js';
+import { formatDate } from '../common.js';
 
 interface CustomerProfileProps {
   customer: Customer;
@@ -56,7 +56,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer }) => {
               </tr>
             </thead>
             <tbody>
-              {customerOrders.map((order: Order) => (
+              {customerOrders.map((order) => (
                 <tr key={order.order_id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                   <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{order.order_id}</td>
                   <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">

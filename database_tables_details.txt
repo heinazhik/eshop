@@ -20,7 +20,6 @@ $ PGPASSWORD=admin123 psql -U admin -h localhost -d ecommerce_db -Atc "SELECT ta
   PGPASSWORD=admin123 psql -U admin -h localhost -d ecommerce_db -c "\d $table"
   echo "--------------------------------------------------"
 done
-
 Structure of table: logistics_partners
                                           Table "public.logistics_partners"
      Column      |       Type        | Collation | Nullable |                        Default                         
@@ -78,25 +77,6 @@ Foreign-key constraints:
     "order_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(product_id)
 
 --------------------------------------------------
-Structure of table: products
-                                              Table "public.products"
-     Column     |            Type             | Collation | Nullable |                   Default                    
-----------------+-----------------------------+-----------+----------+----------------------------------------------
- product_id     | integer                     |           | not null | nextval('products_product_id_seq'::regclass)
- name           | character varying           |           | not null | 
- category       | character varying           |           |          | 
- price          | numeric                     |           | not null | 
- stock_quantity | integer                     |           |          | 0
- description    | text                        |           |          | 
- created_at     | timestamp without time zone |           |          | now()
-Indexes:
-    "products_pkey" PRIMARY KEY, btree (product_id)
-    "idx_products_category" btree (category)
-    "idx_products_name" btree (name)
-Referenced by:
-    TABLE "order_items" CONSTRAINT "order_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(product_id)
-
---------------------------------------------------
 Structure of table: customers
                                                  Table "public.customers"
        Column        |            Type             | Collation | Nullable |                    Default                     
@@ -117,6 +97,27 @@ Indexes:
 Referenced by:
     TABLE "orders" CONSTRAINT "orders_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
     TABLE "subscription_history" CONSTRAINT "subscription_history_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+
+--------------------------------------------------
+Structure of table: products
+                                              Table "public.products"
+     Column     |            Type             | Collation | Nullable |                   Default                    
+----------------+-----------------------------+-----------+----------+----------------------------------------------
+ product_id     | integer                     |           | not null | nextval('products_product_id_seq'::regclass)
+ name           | character varying           |           | not null | 
+ category       | character varying           |           |          | 
+ price          | numeric                     |           | not null | 
+ stock_quantity | integer                     |           |          | 0
+ description    | text                        |           |          | 
+ created_at     | timestamp without time zone |           |          | now()
+ image_url      | text                        |           |          | 
+Indexes:
+    "products_pkey" PRIMARY KEY, btree (product_id)
+    "idx_products_category" btree (category)
+    "idx_products_image_url" btree (image_url)
+    "idx_products_name" btree (name)
+Referenced by:
+    TABLE "order_items" CONSTRAINT "order_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(product_id)
 
 --------------------------------------------------
 Structure of table: subscription_history
@@ -198,4 +199,3 @@ Foreign-key constraints:
     "blog_comments_post_id_fkey" FOREIGN KEY (post_id) REFERENCES blog_posts(post_id)
 
 --------------------------------------------------
-

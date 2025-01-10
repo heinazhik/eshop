@@ -1,0 +1,333 @@
+$ cat .env.local 
+NEXT_PUBLIC_API_URL=http://localhost:3000
+DB_USER=admin
+DB_PASSWORD=admin123
+DB_HOST=localhost
+DB_NAME=ecommerce_db
+DB_PORT=5432
+# SMTP Configuration
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email@example.com
+SMTP_PASSWORD=your-password
+EMAIL_FROM=your-email@example.com
+EMAIL_TO=support@eshop.com
+pete@pop-os:~/cline/eshop
+$ ls -l lib types hooks utils components package.json 
+-rw-rw-r-- 1 pete pete 1048 Jan  8 18:17 package.json
+
+components:
+total 32
+drwxrwxr-x 2 pete pete 4096 Jan  8 19:27 Customers
+drwxrwxr-x 2 pete pete 4096 Jan  7 18:00 Dashboard
+drwxrwxr-x 2 pete pete 4096 Jan  7 15:30 Global
+drwxrwxr-x 2 pete pete 4096 Jan  7 15:39 Layout
+drwxrwxr-x 2 pete pete 4096 Jan  8 09:07 Orders
+drwxrwxr-x 2 pete pete 4096 Jan  7 18:19 Products
+drwxrwxr-x 2 pete pete 4096 Jan  7 18:16 UI
+-rw-rw-r-- 1 pete pete  352 Jan  7 17:51 common.ts
+
+hooks:
+total 4
+-rw-rw-r-- 1 pete pete 1102 Jan  8 12:20 useFetch.ts
+
+lib:
+total 12
+-rw-rw-r-- 1 pete pete 2955 Jan  8 22:15 db.ts
+drwxrwxr-x 2 pete pete 4096 Jan  8 18:15 migrations
+-rw-rw-r-- 1 pete pete  162 Jan  6 06:29 utils.ts
+
+types:
+total 4
+-rw-rw-r-- 1 pete pete 109 Jan  8 13:03 index.ts
+
+utils:
+total 8
+-rw-rw-r-- 1 pete pete 904 Jan  8 10:09 api.ts
+-rw-rw-r-- 1 pete pete 593 Jan  8 10:17 auth.js
+pete@pop-os:~/cline/eshop
+$ cat lib/db.ts 
+import { Pool, PoolClient, QueryConfig, QueryResult, QueryResultRow } from 'pg';
+
+declare module 'pg' {
+  interface PoolClient {
+    lastQuery?: any[];
+  }
+}
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+export const db = {
+  query: (text: string | QueryConfig, params?: any[]) => pool.query(text, params),
+  getClient: async () => {
+    const client = await pool.connect();
+    const query = client.query;
+    const release = client.release;
+    
+    // Set a timeout of 5 seconds
+    const timeout = setTimeout(() => {
+      console.error('A client has been checked out for more than 5 seconds!');
+      console.error(`The last executed query on this client was: ${client.lastQuery}`);
+    }, 5000);
+
+    // Monkey patch the query method to keep track of the last query executed
+    client.query = <R extends QueryResultRow = any, I extends any[] = any[]>(
+      queryTextOrConfig: string | QueryConfig<I>,
+      values?: I,
+      callback?: (err: Error, result: QueryResult<R>) => void
+    ): Promise<QueryResult<R>> => {
+      client.lastQuery = [queryTextOrConfig, values, callback];
+      
+      if (typeof callback === 'function') {
+        // Handle callback-style query
+        return new Promise((resolve, reject) => {
+          if (typeof queryTextOrConfig === 'string') {
+            query.call(
+              client, 
+              queryTextOrConfig, 
+              values || [], 
+              (err: Error, result: QueryResult<R>) => {
+                if (err) return reject(err);
+                callback(err, result);
+                resolve(result);
+              }
+            );
+          } else {
+            query.call(
+              client, 
+              queryTextOrConfig, 
+              (err: Error, result: QueryResult<R>) => {
+                if (err) return reject(err);
+                callback(err, result);
+                resolve(result);
+              }
+            );
+          }
+        });
+      } else if (values) {
+        // Handle promise-style query with values
+        if (typeof queryTextOrConfig === 'string') {
+          return query.call(client, queryTextOrConfig, values) as Promise<QueryResult<R>>;
+        }
+        return query.call(client, { ...queryTextOrConfig, values }) as Promise<QueryResult<R>>;
+      } else {
+        // Handle promise-style query without values
+        if (typeof queryTextOrConfig === 'string') {
+          return query.call(client, queryTextOrConfig) as Promise<QueryResult<R>>;
+        }
+        return query.call(client, queryTextOrConfig) as Promise<QueryResult<R>>;
+      }
+    };
+
+    client.release = () => {
+      // Clear the timeout
+      clearTimeout(timeout);
+      
+      // Reset the original query and release methods
+      client.query = query;
+      client.release = release;
+      return release.apply(client);
+    };
+
+    return client;
+  }
+};
+pete@pop-os:~/cline/eshop
+$ ls -l src/
+app/                   components/            placeholder-data.json  types.ts               
+pete@pop-os:~/cline/eshop
+$ ls -l src/
+total 32
+drwxrwxr-x 13 pete pete  4096 Jan  6 13:40 app
+drwxrwxr-x  2 pete pete  4096 Jan  6 13:41 components
+-rw-rw-r--  1 pete pete 17869 Dec 19 14:17 placeholder-data.json
+-rw-rw-r--  1 pete pete   839 Jan  7 19:17 types.ts
+pete@pop-os:~/cline/eshop
+$ cat src/types.ts 
+export interface Product {
+  product_id: number;
+  name: string;
+  description: string;
+  price: number;
+  image_url?: string;
+  category: string;
+  created_at: string;
+  stock_quantity: number;
+}
+
+export interface Customer {
+  customer_id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  registration_date: string;
+  newsletter_opt_in: boolean;
+  subscription_status: string;
+}
+
+export interface Order {
+  order_id: number;
+  customer_id?: number;
+  status: string;
+  total_amount: number;
+  created_at: string;
+}
+
+export interface OrderItem {
+  order_item_id: number;
+  order_id: number;
+  product_id: number;
+  quantity: number;
+  price: number;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  error: string | null;
+  loading: boolean;
+}
+
+export interface Option {
+  value: string;
+  label: string;
+}
+pete@pop-os:~/cline/eshop
+$ ls -l src/app/
+total 92
+drwxrwxr-x  2 pete pete  4096 Jan  3 22:38 about
+drwxrwxr-x  5 pete pete  4096 Jan  8 18:59 admin
+drwxrwxr-x 11 pete pete  4096 Jan  8 09:23 api
+drwxrwxr-x  4 pete pete  4096 Jan  6 11:54 blog
+drwxrwxr-x  2 pete pete  4096 Jan  3 20:43 cart
+drwxrwxr-x  2 pete pete  4096 Jan  3 22:49 contact
+-rw-rw-r--  1 pete pete 25931 Dec 18 18:49 favicon.ico
+-rw-rw-r--  1 pete pete   551 Jan  6 10:32 globals.css
+-rw-rw-r--  1 pete pete   688 Jan  6 15:29 layout.tsx
+drwxrwxr-x  2 pete pete  4096 Jan  3 22:11 login
+drwxrwxr-x  2 pete pete  4096 Jan  4 06:38 newsletter
+-rw-rw-r--  1 pete pete  1418 Jan  6 19:07 page.tsx
+-rw-rw-r--  1 pete pete  4736 Dec 18 19:49 placeholder-products.json
+drwxrwxr-x  2 pete pete  4096 Jan  4 06:32 privacy
+drwxrwxr-x  3 pete pete  4096 Jan  3 22:56 products
+drwxrwxr-x  2 pete pete  4096 Jan  4 06:28 terms
+pete@pop-os:~/cline/eshop
+$ ls -l src/components/
+total 32
+-rw-rw-r-- 1 pete pete 1886 Jan  6 16:31 BlogPostCard.tsx
+-rw-rw-r-- 1 pete pete 3700 Jan  6 18:33 BlogSidebar.tsx
+-rw-rw-r-- 1 pete pete 4147 Jan  7 00:02 Footer.tsx
+-rw-rw-r-- 1 pete pete  970 Jan  6 06:27 Hero.tsx
+-rw-rw-r-- 1 pete pete 1280 Jan  6 10:36 Navbar.tsx
+-rw-rw-r-- 1 pete pete 1452 Jan  6 19:08 ProductCard.tsx
+-rw-rw-r-- 1 pete pete 3000 Dec 18 19:48 ProductGrid.tsx
+pete@pop-os:~/cline/eshop
+$ cat src/app/globals.css 
+:root {
+  /* Light Mode */
+  --background-light: #F7F9FC;
+  --text-light: #2C2C2C;
+  --primary-accent: #4CAF50;
+  --secondary-accent: #FFC107;
+  --link-light: #007BFF;
+  --card-light: #FFFFFF;
+  --footer-light: #F1F3F6;
+
+  /* Dark Mode */
+  --background-dark: #121212;
+  --text-dark: #FFFFFF;
+  --link-dark: #80BFFF;
+  --card-dark: #1E1E1E;
+  --footer-dark: #181818;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark;
+  }
+}
+pete@pop-os:~/cline/eshop
+$ cat src/app/layout.tsx 
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Navbar from '../components/Navbar';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'eShop - Modern E-commerce',
+  description: 'A modern, minimalist e-commerce website built with Next.js 13+ and Tailwind CSS.',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={`${inter.className} bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark`}>
+        <Navbar />
+        {children}
+      </body>
+    </html>
+  );
+}
+pete@pop-os:~/cline/eshop
+$ cat src/app/page.tsx 
+import Hero from '../components/Hero';
+import ProductCard from '../components/ProductCard';
+import Footer from '../components/Footer';
+import { Product } from '../types';
+
+async function getFeaturedProducts() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch products');
+  }
+  return res.json();
+}
+
+export default async function Home() {
+  const products: Product[] = await getFeaturedProducts();
+
+  return (
+    <div>
+      <Hero />
+
+      {/* Product Grid */}
+      <section className="py-16 px-4 bg-secondary-100">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold mb-8">Featured Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((product) => (
+              <ProductCard
+                key={product.product_id}
+                product={{
+                  id: product.product_id,
+                  name: product.name,
+                  description: product.description,
+                  price: product.price,
+                  imageUrl: product.image_url || '/placeholder.jpg',
+                  category: product.category,
+                  createdAt: new Date(product.created_at)
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+}
+

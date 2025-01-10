@@ -1,0 +1,181 @@
+Here's the entire Technical Specification Document embedded right into the chat for your convenience:
+
+📋 Technical Specification: Displaying "Featured Products" in Next.js E-commerce Landing Page
+✅ Objective
+Enhance the main landing page of the Next.js e-commerce application to display six "Featured Products" from a PostgreSQL database. When users click on a product, they should be redirected to a dynamically generated product page that shows detailed product information and includes a button to add the product to the shopping cart.
+
+🛠 Technologies Used
+Next.js: Frontend framework for server-side rendering and static site generation
+TypeScript: For type-safe development
+Tailwind CSS: For styling
+PostgreSQL: Database to store product information
+Prisma: ORM to interact with the PostgreSQL database
+🗄️ Database Schema
+Ensure that your PostgreSQL database has a table named products with the following schema:
+
+sql
+Copy code
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  description TEXT,
+  image_url VARCHAR(255),
+  featured BOOLEAN DEFAULT FALSE
+);
+🖥️ Backend Implementation
+1️⃣ Setup Prisma
+Install Prisma in your Next.js project:
+
+bash
+Copy code
+npm install prisma --save-dev
+npx prisma init
+Update the schema.prisma file to include the Product model:
+
+prisma
+Copy code
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Float
+  description String?
+  imageUrl    String?
+  featured    Boolean  @default(false)
+}
+Run the migration to update your database:
+
+bash
+Copy code
+npx prisma migrate dev --name init
+2️⃣ Fetch Featured Products
+Create an API route to fetch featured products from the database.
+
+📄 /pages/api/featured-products.ts:
+
+typescript
+Copy code
+import { NextApiRequest, NextApiResponse } from 'next';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const products = await prisma.product.findMany({
+      where: { featured: true },
+      take: 6,
+    });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch featured products' });
+  }
+}
+🎨 Frontend Implementation
+1️⃣ Modify the Landing Page
+Update the main landing page to fetch and display featured products.
+
+📄 /pages/index.tsx:
+
+typescript
+Copy code
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  imageUrl: string;
+}
+
+export default function Home() {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const response = await fetch('/api/featured-products');
+      const data = await response.json();
+      setProducts(data);
+    }
+
+    fetchProducts();
+  }, []);
+
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-4xl font-bold mb-5">Featured Products</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {products.map((product) => (
+          <div key={product.id} className="border p-4 rounded shadow-lg">
+            <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover" />
+            <h2 className="text-xl font-bold mt-2">{product.name}</h2>
+            <p className="text-green-600 mt-1">${product.price.toFixed(2)}</p>
+            <Link href={`/product/${product.id}`}>
+              <button className="bg-green-500 text-white px-4 py-2 mt-3 rounded hover:bg-green-600">View</button>
+            </Link>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+2️⃣ Create Dynamic Product Pages
+Create a dynamic route to handle product pages.
+
+📄 /pages/product/[id].tsx:
+
+typescript
+Copy code
+import { GetServerSideProps } from 'next';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.params!;
+  const product = await prisma.product.findUnique({
+    where: { id: Number(id) },
+  });
+
+  return {
+    props: { product },
+  };
+};
+
+interface ProductProps {
+  product: {
+    id: number;
+    name: string;
+    price: number;
+    description: string;
+    imageUrl: string;
+  };
+}
+
+export default function ProductPage({ product }: ProductProps) {
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-4xl font-bold">{product.name}</h1>
+      <img src={product.imageUrl} alt={product.name} className="w-full h-96 object-cover my-4" />
+      <p className="text-green-600 text-2xl">${product.price.toFixed(2)}</p>
+      <p className="mt-4">{product.description}</p>
+      <button className="bg-green-500 text-white px-6 py-3 mt-6 rounded hover:bg-green-600">
+        Add to Cart
+      </button>
+    </div>
+  );
+}
+💅 Styling with Tailwind CSS
+Ensure you have Tailwind CSS configured in your project. Add styling classes to buttons, images, and layouts to match your design preferences.
+
+🧪 Testing
+Run the project using the following command:
+bash
+Copy code
+npm run dev
+Visit http://localhost:3000/ to see the Featured Products section on the landing page.
+Click on any product to view its details and check the Add to Cart button functionality.
+✅ Conclusion
+This implementation allows for a seamless display of featured products on the landing page and provides a dynamic user experience with product detail pages. The steps outlined ensure the integration is smooth and aligns with best practices in a TypeScript and Next.js environment.
+

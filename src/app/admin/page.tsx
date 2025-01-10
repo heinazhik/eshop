@@ -2,12 +2,12 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import DashboardTab from './components/DashboardTab';
-import ProductsPanel from '../../../components/Products/ProductsPanel';
+import React from 'react';
+import DashboardTab from './components/DashboardTab.tsx';
+import ProductsPanel from '../../../components/Products/ProductsPanel.tsx';
 
 const AdminPage = () => {
   const searchParams = useSearchParams();
-  const tab = searchParams.get('tab');
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -15,41 +15,29 @@ const AdminPage = () => {
       <aside className="w-64 bg-gray-200 px-4 py-6">
         <div className="text-xl font-bold mb-6">Admin Panel</div>
         <nav>
-          <Link 
-            href="/admin" 
+          <Link
+            href="/admin"
             className="block py-2 hover:bg-gray-300 rounded"
           >
             Dashboard
           </Link>
-          <Link 
+          <Link
             href="/admin?tab=products"
-            className="block py-2 hover:bg-gray-300 rounded" 
+            className="block py-2 hover:bg-gray-300 rounded"
           >
             Products
           </Link>
-          <Link 
+          <Link
             href="/admin?tab=customers"
             className="block py-2 hover:bg-gray-300 rounded"
           >
             Customers
           </Link>
-          <Link 
-            href="/admin?tab=logistics"
-            className="block py-2 hover:bg-gray-300 rounded"
-          >
-            Logistics Partners
-          </Link>
-          <Link 
+          <Link
             href="/admin?tab=orders"
             className="block py-2 hover:bg-gray-300 rounded"
           >
             Orders
-          </Link>
-          <Link 
-            href="/admin?tab=reports"
-            className="block py-2 hover:bg-gray-300 rounded"
-          >
-            Sales Reports
           </Link>
         </nav>
       </aside>
@@ -113,11 +101,10 @@ const AdminPage = () => {
 
         {/* Main Content Area */}
         <main className="flex-1 bg-gray-100 p-6 overflow-y-scroll">
-          {tab === 'products' ? (
-            <ProductsPanel />
-          ) : (
-            <DashboardTab />
-          )}
+          {!searchParams.get('tab') && <DashboardTab />}
+          {searchParams.get('tab') === 'products' && <ProductsPanel />}
+          {searchParams.get('tab') === 'customers' && <div>Customers Content</div>}
+          {searchParams.get('tab') === 'orders' && <div>Orders Content</div>}
         </main>
       </div>
     </div>

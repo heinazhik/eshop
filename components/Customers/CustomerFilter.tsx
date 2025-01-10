@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Customer } from '../../types/index.ts';
-import { Input } from '../UI/Input.tsx';
+import { Customer } from '../../src/types.js';
+import Input from '../UI/Input.js';
 
 interface CustomerFilterProps {
   customers: Customer[];
@@ -49,7 +49,7 @@ const CustomerFilter: React.FC<CustomerFilterProps> = ({ customers, onFilter }) 
           type="text"
           placeholder="Filter by name"
           value={nameFilter}
-          onChange={(e) => setNameFilter(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNameFilter(e.target.value)}
         />
       </div>
       <div className="flex-1">
@@ -57,14 +57,14 @@ const CustomerFilter: React.FC<CustomerFilterProps> = ({ customers, onFilter }) 
           type="text"
           placeholder="Filter by email"
           value={emailFilter}
-          onChange={(e) => setEmailFilter(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmailFilter(e.target.value)}
         />
       </div>
       <div className="flex-1">
         <select
           className="border rounded p-2 w-full bg-[var(--card-light)] text-[var(--text-light)] dark:bg-[var(--card-dark)] dark:text-[var(--text-dark)]"
           value={subscriptionFilter}
-          onChange={(e) => setSubscriptionFilter(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSubscriptionFilter(e.target.value)}
         >
           <option value="">Filter by Subscription Status</option>
           {subscriptionOptions.map((status) => (

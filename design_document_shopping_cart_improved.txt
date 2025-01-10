@@ -1,0 +1,480 @@
+✨ Enhanced Design Document for /cart Page ✨
+1️⃣ Overview
+The /cart page is a critical component of the e-commerce platform, allowing users to:
+
+Review items in their shopping cart.
+
+Adjust item quantities.
+
+Remove items from the cart.
+
+Enter shipping and payment details.
+
+Place an order.
+
+This document provides a complete and updated design for the /cart page, integrating feedback from the provided design documents and ensuring alignment with the existing database schema and project structure. It also includes detailed code snippets to help with implementation.
+
+2️⃣ Page Layout
+2.1 Header
+Logo: Link to the homepage (/).
+
+Navigation Links: Links to other sections (e.g., Products, Blog, Account).
+
+Cart Icon: Displays the number of items in the cart (dynamic count).
+
+2.2 Main Content
+2.2.1 Cart Items Section
+Displays a list of items in the cart with the following fields:
+
+Field	Description
+Product Image	Thumbnail image of the product (linked to the product detail page).
+Product Name	Name of the product (linked to the product detail page).
+Price	Price per unit of the product.
+Quantity	Input field to adjust the quantity of the product (default: 1).
+Subtotal	Calculated as Price * Quantity.
+Remove Button	Button to remove the item from the cart.
+2.2.2 Shipping Address Section
+Allows the customer to enter or select a shipping address. Fields include:
+
+Field	Description
+Full Name	Input field for the customer's full name.
+Address Line 1	Input field for the street address.
+Address Line 2	Optional input field for additional address details.
+City	Input field for the city.
+State/Province	Dropdown or input field for the state/province.
+Postal Code	Input field for the postal code.
+Country	Dropdown for selecting the country.
+2.2.3 Payment Method Section
+Allows the customer to select a payment method and enter payment details. Fields include:
+
+Field	Description
+Payment Method	Radio buttons for selecting a payment method (Visa, Mastercard, PayPal).
+Card Number	Input field for the card number (if Visa/Mastercard is selected).
+Expiration Date	Input field for the card's expiration date.
+CVV	Input field for the card's CVV.
+PayPal Email	Input field for the PayPal email (if PayPal is selected).
+2.2.4 Order Summary Section
+Displays a summary of the order, including subtotals and the total amount. Fields include:
+
+Field	Description
+Subtotal	Sum of Price * Quantity for all items in the cart.
+Shipping Cost	Fixed or calculated shipping cost.
+Tax	Calculated tax based on the customer's location.
+Total Amount	Total amount to pay (Subtotal + Shipping Cost + Tax).
+2.2.5 Order Button
+Place Order Button: Button to submit the order. Enabled only if all required fields are filled in correctly.
+
+3️⃣ Functionality
+3.1 Cart Items Section
+Adjust Quantity: The customer can increase or decrease the quantity of each item. The subtotal for each item is updated dynamically.
+
+Remove Item: Clicking the "Remove" button removes the item from the cart. The cart summary is updated to reflect the changes.
+
+3.2 Shipping Address Section
+Address Validation: All fields are required except for "Address Line 2". The form validates the postal code and ensures the address is complete.
+
+Saved Addresses: If the customer is logged in, they can select a saved address from their profile.
+
+3.3 Payment Method Section
+Payment Validation: The card number, expiration date, and CVV are validated for Visa/Mastercard. The PayPal email is validated if PayPal is selected.
+
+Dynamic Fields: Only the relevant fields for the selected payment method are displayed.
+
+3.4 Order Summary Section
+Dynamic Updates: The subtotal, shipping cost, tax, and total amount are updated dynamically as the customer adjusts the cart or enters their address.
+
+Shipping Cost Calculation: Shipping cost is calculated based on the customer's location and the total weight of the items.
+
+3.5 Place Order Button
+Validation: The button is enabled only if:
+
+The cart is not empty.
+
+A valid shipping address is provided.
+
+A valid payment method is selected.
+
+Order Submission: Clicking the button submits the order and redirects the customer to an order confirmation page.
+
+4️⃣ Database Integration
+4.1 Cart Items
+Data Source: products table.
+
+Fields Used:
+
+product_id: Unique identifier for the product.
+
+name: Name of the product.
+
+price: Price per unit of the product.
+
+stock_quantity: Used to validate if the requested quantity is available.
+
+4.2 Shipping Address
+Data Source: customers table.
+
+Fields Used:
+
+address: JSONB field containing the customer's address details.
+
+If the customer is logged in, the address is pre-filled from their profile.
+
+4.3 Order Submission
+Data Flow:
+
+Orders Table:
+
+A new row is created in the orders table with the following fields:
+
+customer_id: ID of the customer placing the order.
+
+status: Set to "Pending".
+
+total_amount: Total amount of the order.
+
+created_at: Timestamp of the order.
+
+Order_Items Table:
+
+A new row is created in the order_items table for each item in the cart with the following fields:
+
+order_id: ID of the order.
+
+product_id: ID of the product.
+
+quantity: Quantity of the product.
+
+price: Price of the product at the time of order.
+
+5️⃣ Error Handling
+Out of Stock: If a product is out of stock, the customer is notified, and the item is removed from the cart.
+
+Invalid Address: If the address is invalid, the customer is prompted to correct it.
+
+Payment Failure: If the payment fails, the customer is notified and prompted to try again.
+
+6️⃣ Example Workflow
+The customer adds items to the cart and navigates to the checkout page.
+
+The customer reviews the cart, adjusts quantities, and removes items if necessary.
+
+The customer enters or selects a shipping address.
+
+The customer selects a payment method and enters payment details.
+
+The customer reviews the order summary and clicks "Place Order".
+
+The order is submitted, and the customer is redirected to the order confirmation page.
+
+7️⃣ Mockup
+Below is a simplified mockup of the shopping cart checkout page:
+
+Copy
++-----------------------------------------------------+
+| Logo                                                |
++-----------------------------------------------------+
+| Cart Items                                          |
+| +----------------+----------------+----------------+|
+| | Product Image  | Product Name   | Price          ||
+| | Quantity Input | Subtotal       | Remove Button  ||
+| +----------------+----------------+----------------+|
+| Shipping Address                                   |
+| +------------------------------------------------+|
+| | Full Name, Address, City, State, Postal Code   ||
+| +------------------------------------------------+|
+| Payment Method                                     |
+| +------------------------------------------------+|
+| | Visa/Mastercard/PayPal, Card Number, Exp Date  ||
+| +------------------------------------------------+|
+| Order Summary                                      |
+| +------------------------------------------------+|
+| | Subtotal, Shipping Cost, Tax, Total Amount     ||
+| +------------------------------------------------+|
+| [Place Order Button]                              |
++-----------------------------------------------------+
+8️⃣ Implementation Steps
+8.1 Frontend Implementation
+8.1.1 Fetching Cart Items
+The /cart page will fetch cart items from the /api/cart endpoint and display them in a list.
+
+typescript
+Copy
+// src/app/cart/page.tsx
+import { OrderItem, Product } from '@/types';
+import { ApiResponse } from '@/types';
+
+async function getCartItems(): Promise<ApiResponse<OrderItem[]>> {
+  const res = await fetch('/api/cart');
+  if (!res.ok) throw new Error('Failed to fetch cart items');
+  return res.json();
+}
+
+export default async function CartPage() {
+  const { data: cartItems, error } = await getCartItems();
+
+  if (error) {
+    return <div>Error loading cart: {error}</div>;
+  }
+
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
+      <div className="space-y-6">
+        {cartItems.map((item) => (
+          <CartItem key={item.order_item_id} item={item} />
+        ))}
+      </div>
+      <CartSummary />
+    </div>
+  );
+}
+8.1.2 Cart Item Component
+Each cart item will display the product details, allow quantity updates, and provide an option to remove the item.
+
+typescript
+Copy
+// src/components/CartItem.tsx
+import { OrderItem } from '@/types';
+
+interface CartItemProps {
+  item: OrderItem;
+}
+
+export default function CartItem({ item }: CartItemProps) {
+  const handleUpdateQuantity = async (quantity: number) => {
+    const response = await fetch('/api/cart/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_item_id: item.order_item_id, quantity }),
+    });
+    if (response.ok) {
+      // Refresh the cart
+      window.location.reload();
+    }
+  };
+
+  const handleRemoveItem = async () => {
+    const response = await fetch('/api/cart/remove', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_item_id: item.order_item_id }),
+    });
+    if (response.ok) {
+      // Refresh the cart
+      window.location.reload();
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between p-4 border rounded-lg">
+      <div className="flex items-center space-x-4">
+        <img
+          src={item.image_url || '/placeholder.jpg'}
+          alt={item.name}
+          className="w-20 h-20 object-cover rounded"
+        />
+        <div>
+          <h2 className="text-xl font-semibold">{item.name}</h2>
+          <p className="text-gray-600">${item.price.toFixed(2)}</p>
+        </div>
+      </div>
+      <div className="flex items-center space-x-4">
+        <input
+          type="number"
+          value={item.quantity}
+          onChange={(e) => handleUpdateQuantity(Number(e.target.value))}
+          className="w-16 p-2 border rounded"
+        />
+        <button
+          onClick={handleRemoveItem}
+          className="text-red-500 hover:text-red-700"
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  );
+}
+8.1.3 Cart Summary Component
+The cart summary will display the total cost and provide a button to proceed to checkout.
+
+typescript
+Copy
+// src/components/CartSummary.tsx
+import { OrderItem } from '@/types';
+
+interface CartSummaryProps {
+  items: OrderItem[];
+}
+
+export default function CartSummary({ items }: CartSummaryProps) {
+  const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleCheckout = async () => {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: 1, // Replace with actual customer ID
+        total_amount: totalAmount,
+        shipping_address: '123 Main St, City, Country', // Replace with actual address
+        payment_method: 'credit_card', // Replace with actual payment method
+      }),
+    });
+    if (response.ok) {
+      // Redirect to order confirmation page
+      window.location.href = '/order-confirmation';
+    }
+  };
+
+  return (
+    <div className="mt-8 p-6 border rounded-lg bg-gray-50">
+      <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
+      <div className="space-y-4">
+        <div className="flex justify-between">
+          <span>Subtotal</span>
+          <span>${totalAmount.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Shipping</span>
+          <span>$0.00</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Total</span>
+          <span className="font-bold">${totalAmount.toFixed(2)}</span>
+        </div>
+      </div>
+      <button
+        onClick={handleCheckout}
+        className="w-full mt-6 bg-green-500 text-white py-3 rounded hover:bg-green-600"
+      >
+        Proceed to Checkout
+      </button>
+    </div>
+  );
+}
+8.2 Backend Implementation
+8.2.1 Fetch Cart Items
+typescript
+Copy
+// src/app/api/cart/route.ts
+import { db } from '@/lib/db';
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  try {
+    const query = `
+      SELECT
+        oi.order_item_id,
+        oi.product_id,
+        p.name,
+        p.price,
+        oi.quantity,
+        p.image_url
+      FROM
+        order_items oi
+      JOIN
+        products p ON oi.product_id = p.product_id
+      WHERE
+        oi.order_id = (SELECT order_id FROM orders WHERE status = 'pending' LIMIT 1);
+    `;
+    const result = await db.query(query);
+    return NextResponse.json(result.rows);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch cart items' }, { status: 500 });
+  }
+}
+8.2.2 Update Cart Item Quantity
+typescript
+Copy
+// src/app/api/cart/update/route.ts
+import { db } from '@/lib/db';
+import { NextResponse } from 'next/server';
+
+export async function POST(request: Request) {
+  const { order_item_id, quantity } = await request.json();
+
+  try {
+    const query = `
+      UPDATE order_items
+      SET quantity = $1
+      WHERE order_item_id = $2;
+    `;
+    await db.query(query, [quantity, order_item_id]);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update cart item' }, { status: 500 });
+  }
+}
+8.2.3 Remove Cart Item
+typescript
+Copy
+// src/app/api/cart/remove/route.ts
+import { db } from '@/lib/db';
+import { NextResponse } from 'next/server';
+
+export async function POST(request: Request) {
+  const { order_item_id } = await request.json();
+
+  try {
+    const query = `
+      DELETE FROM order_items
+      WHERE order_item_id = $1;
+    `;
+    await db.query(query, [order_item_id]);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to remove cart item' }, { status: 500 });
+  }
+}
+8.2.4 Place Order
+typescript
+Copy
+// src/app/api/orders/route.ts
+import { db } from '@/lib/db';
+import { NextResponse } from 'next/server';
+
+export async function POST(request: Request) {
+  const { customer_id, total_amount, shipping_address, payment_method } = await request.json();
+
+  try {
+    // Create a new order
+    const orderQuery = `
+      INSERT INTO orders (customer_id, total_amount, shipping_address, payment_method, status)
+      VALUES ($1, $2, $3, $4, 'processing')
+      RETURNING order_id;
+    `;
+    const orderResult = await db.query(orderQuery, [customer_id, total_amount, shipping_address, payment_method]);
+    const orderId = orderResult.rows[0].order_id;
+
+    // Move cart items to the new order
+    const moveItemsQuery = `
+      UPDATE order_items
+      SET order_id = $1
+      WHERE order_id = (SELECT order_id FROM orders WHERE status = 'pending' LIMIT 1);
+    `;
+    await db.query(moveItemsQuery, [orderId]);
+
+    return NextResponse.json({ order_id: orderId, success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to place order' }, { status: 500 });
+  }
+}
+9️⃣ Testing
+Verify that cart items are fetched and displayed correctly.
+
+Test updating quantities and removing items.
+
+Ensure the checkout process works as expected.
+
+Test the page on different screen sizes.
+
+🔟 Future Enhancements
+Add user authentication to associate carts with logged-in users.
+
+Implement a proper payment gateway for checkout.
+
+Add order tracking and history.
+
+Improve error handling and user feedback.
+

@@ -1,0 +1,401 @@
+
+*3️⃣1️⃣ Report Generation Form*
+   - `components/SalesReports/ReportGenerationForm.tsx`:
+        -   Provides a form for generating sales reports, validated with Zod.
+
+        ```typescript
+           import React, { useState } from 'react';
+            import { Input } from '../UI/Input';
+             import { Button } from '../UI/Button';
+            import apiFetch from '@/utils/api';
+            import { SalesReport } from '@/types';
+            import { z } from 'zod';
+
+            interface ReportGenerationFormProps {
+               onReportGenerated: (report: SalesReport) => void;
+            }
+            const reportSchema = z.object({
+                startDate: z.string().min(1, 'Start date is required'),
+               endDate: z.string().min(1, 'End date is required'),
+            });
+
+           const ReportGenerationForm: React.FC<ReportGenerationFormProps> = ({ onReportGenerated }) => {
+                const [startDate, setStartDate] = useState('');
+                const [endDate, setEndDate] = useState('');
+                const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+
+                const handleSubmit = async (event: React.FormEvent) => {
+                   event.preventDefault();
+                    try {
+                         const parsedData = reportSchema.parse({
+                             startDate,
+                            endDate
+                         });
+                          setErrors({});
+                           const reportData:SalesReport = await apiFetch('/sales-reports', {
+                              method: 'POST',
+                             body: {
+                                 date_range: {
+                                   start: parsedData.startDate,
+                                    end: parsedData.endDate
+                                }
+                             }
+                           });
+                        onReportGenerated(reportData);
+                        alert('Report generated successfully!');
+                   } catch (error:any) {
+                         if (error instanceof z.ZodError) {
+                            const newErrors: { [key: string]: string } = {};
+                            error.errors.forEach((err) => {
+                                newErrors[err.path[0]] = err.message
+                            });
+                            setErrors(newErrors)
+                        } else {
+                            alert(error.message || 'Error generating report');
+                        }
+                   }
+                };
+
+                return (
+                    <form onSubmit={handleSubmit} className="flex gap-4 mb-4">
+                        <div className='flex-1'>
+                             <Input
+                                type="date"
+                                 placeholder="Start Date"
+                                 value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                error={errors.startDate}
+                           />
+                           {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate}</p>}
+                        </div>
+                        <div className='flex-1'>
+                             <Input
+                                  type="date"
+                                 placeholder="End Date"
+                                 value={endDate}
+                                 onChange={(e) => setEndDate(e.target.value)}
+                                error={errors.endDate}
+                             />
+                            {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate}</p>}
+                         </div>
+                       <Button type="submit">Generate Report</Button>
+                    </form>
+                );
+            };
+
+            export default ReportGenerationForm;
+         ```
+
+*3️⃣2️⃣ Report Table*
+    -   `components/SalesReports/ReportTable.tsx`:
+        - Displays a list of sales reports with pagination.
+
+          ```typescript
+           import React, { useState } from 'react';
+            import { SalesReport } from '@/types';
+            import { formatDate } from '../common';
+            import { Table } from '../UI/Table';
+             import { Pagination } from '../UI/Pagination';
+
+            interface ReportTableProps {
+                reports: SalesReport[];
+            }
+
+           const ReportTable: React.FC<ReportTableProps> = ({ reports }) => {
+             const [currentPage, setCurrentPage] = useState(1);
+                const reportsPerPage = 5;
+               const totalPages = Math.ceil(reports.length / reportsPerPage);
+                const startIndex = (currentPage -1) * reportsPerPage;
+               const endIndex = startIndex + reportsPerPage;
+
+               const paginatedReports = reports.slice(startIndex, endIndex);
+
+                const headers = ["Report ID", "Date Range", "Total Sales", "Orders Count"];
+
+                const rows = paginatedReports.map(report => [
+                    report.report_id.toString(),
+                    `${formatDate(report.date_range?.start)} - ${formatDate(report.date_range?.end)}`,
+                    `$${report.total_sales}`,
+                    report.orders_count.toString()
+                ]);
+
+               return (
+                 <div>
+                      <Table headers={headers} rows={rows} />
+                       <Pagination
+                           currentPage={currentPage}
+                             totalPages={totalPages}
+                             onPageChange={(page) => setCurrentPage(page)}
+                        />
+                    </div>
+                );
+             };
+
+            export default ReportTable;
+         ```
+
+*3️⃣3️⃣ Report Chart*
+    -   `components/SalesReports/ReportChart.tsx`:
+        - Displays a chart to visualize sales data.
+        ```typescript
+           import React from 'react';
+            import { SalesReport } from '@/types';
+           import { Bar } from 'react-chartjs-2';
+            import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+           ChartJS.register(
+             CategoryScale,
+              LinearScale,
+              BarElement,
+             Title,
+             Tooltip,
+               Legend
+           );
+
+            interface ReportChartProps {
+              report: SalesReport
+           }
+
+            const ReportChart: React.FC<ReportChartProps> = ({ report }) => {
+             const chartData = {
+                  labels: ['Sales', 'Orders'],
+                    datasets: [
+                       {
+                          label: 'Report Summary',
+                            data: [report.total_sales, report.orders_count],
+                          backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                          borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                           borderWidth: 1,
+                        },
+                    ],
+                }
+                const options = {
+                   responsive: true,
+                     plugins: {
+                       legend: {
+                           position: 'top' as const,
+                        },
+                         title: {
+                            display: true,
+                             text: 'Sales Report Summary',
+                      },
+                  },
+                };
+                return (
+                   <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+                      <Bar data={chartData} options={options} />
+                    </div>
+                );
+            };
+
+           export default ReportChart;
+         ```
+
+*3️⃣4️⃣ UI Components*
+    - The UI Components are generic and reusable across the application.
+*3️⃣4️⃣.1 Table Component*
+        -   `components/UI/Table.tsx`:
+            -   Provides a generic table component with headers and rows, also implementing `onRowClick` action when a row is clicked.
+            ```typescript
+                 // components/UI/Table.tsx
+                 import React from 'react';
+
+                 interface TableProps {
+                     headers: string[],
+                     rows: React.ReactNode[][],
+                     onRowClick?: (item:any) => void;
+                 }
+
+
+                const Table:React.FC<TableProps> = ({headers, rows, onRowClick}) => {
+                     return (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded">
+                                <thead>
+                                <tr>
+                                        {headers.map(header => <th key={header} className="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left">{header}</th>)}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                     {rows.map((row, index) =>
+                                        <tr key={index}
+                                           className="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                                            onClick={onRowClick ? ()=> onRowClick(row) : undefined}
+                                        >
+                                            {row.map((cell, index) => <td key={index} className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{cell}</td>)}
+                                        </tr>
+                                    )}
+                                    </tbody>
+                               </table>
+                        </div>
+                    )
+                 }
+                 export { Table };
+             ```
+*3️⃣4️⃣.2 Other UI Components*
+
+    -   `components/UI/Button.tsx`:
+        -   Renders a button with predefined styles.
+        ```typescript
+             import React, { ButtonHTMLAttributes } from 'react';
+
+            interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+              children: React.ReactNode;
+                size?: 'sm' | 'md' | 'lg';
+            }
+
+            const Button: React.FC<ButtonProps> = ({ children, onClick, type = 'button', size = 'md' }) => {
+              let paddingClasses;
+               let fontSizeClasses;
+
+              switch (size) {
+                    case 'sm':
+                      paddingClasses = 'py-1 px-2';
+                      fontSizeClasses = 'text-sm';
+                      break;
+                  case 'lg':
+                      paddingClasses = 'py-3 px-6';
+                     fontSizeClasses = 'text-lg';
+                      break;
+                   case 'md':
+                   default:
+                      paddingClasses = 'py-2 px-4';
+                     fontSizeClasses = 'text-base';
+                      break;
+               }
+
+              return (
+                    <button
+                      onClick={onClick}
+                       type={type}
+                     className={`bg-[var(--primary-accent)] text-white  rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 ${paddingClasses} ${fontSizeClasses}`}
+                 >
+                   {children}
+                    </button>
+                );
+            };
+
+            export { Button };
+        ```
+
+    -   `components/UI/Input.tsx`:
+        -   Renders a generic input element with predefined styles.
+           ```typescript
+           import React, { InputHTMLAttributes } from 'react';
+
+           interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+            error?:string
+            }
+
+          const Input: React.FC<InputProps> = ({ ...props }) => {
+              return (
+                <input
+                    {...props}
+                   className="w-full p-2 border rounded bg-[var(--card-light)] text-[var(--text-light)] dark:bg-[var(--card-dark)] dark:text-[var(--text-dark)] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                />
+              );
+          };
+
+        export { Input };
+       ```
+
+   -   `components/UI/Modal.tsx`:
+        -   Renders a modal popup with a title and a close button.
+         ```typescript
+           import React from 'react';
+
+           interface ModalProps {
+               isOpen: boolean;
+              onClose: () => void;
+               children: React.ReactNode;
+              title?: string;
+           }
+
+           const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
+             if (!isOpen) return null;
+
+              return (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                       <div className="bg-[var(--card-light)] dark:bg-[var(--card-dark)] rounded shadow-lg w-full max-w-md p-6">
+                           <div className='flex justify-between items-center mb-4'>
+                                <h2 className="text-xl font-semibold">{title}</h2>
+                                <button onClick={onClose} className="text-gray-500 hover:text-gray-700 focus:outline-none">
+                                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                 </button>
+                          </div>
+                         {children}
+                      </div>
+                  </div>
+                );
+            };
+
+           export { Modal };
+       ```
+    -  `components/UI/Pagination.tsx`:
+        -   Renders a pagination control.
+       ```typescript
+          import React from 'react';
+
+            interface PaginationProps {
+                 currentPage: number;
+                totalPages: number;
+                 onPageChange: (page: number) => void;
+            }
+
+            const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+              const pageNumbers = [];
+               for (let i = 1; i <= totalPages; i++) {
+                 pageNumbers.push(i);
+                }
+               const handlePageClick = (page: number) => {
+                    onPageChange(page);
+               };
+               return (
+                 <div className="flex justify-center mt-4">
+                     {pageNumbers && (
+                           <ul className="flex space-x-2">
+                               {pageNumbers.map((page) => (
+                                <li key={page}>
+                                   <button
+                                       onClick={() => handlePageClick(page)}
+                                        className={`px-3 py-1 rounded ${
+                                            currentPage === page
+                                                ? 'bg-green-500 text-white'
+                                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                       }`}
+                                   >
+                                      {page}
+                                 </button>
+                               </li>
+                             ))}
+                           </ul>
+                      )}
+                   </div>
+                 );
+            };
+
+            export { Pagination };
+        ```
+
+*3️⃣5️⃣ Implementation Notes*
+   -  **Data Fetching:** Use the `useFetch` hook for all API calls.
+   -  **Error Handling:** Implement proper error handling for all API requests and display user-friendly messages.
+    -  **Form Validation:** Use a library like Zod for schema validation in forms that interacts with the backend.
+   -   **Accessibility:** Ensure all components are accessible (proper contrast, keyboard navigation, etc.).
+    -  **Testing:** Write unit and integration tests for core functionality.
+   -   **Security:** Make sure to implement necessary security measures in the backend API such as input validation, authorization, authentication etc.
+   -    **Pagination:** Implement the `Pagination` component and add pagination for all tables in the admin page to improve the performance.
+   -    **Authentication:** Implement a basic authentication and authorization mechanism for the admin page.
+
+*3️⃣6️⃣ Further Enhancements*
+
+    -  User Authentication: Implement login and authentication for admin users.
+   -  Real-time Updates: Explore using WebSockets for real-time data updates.
+    - Customizable Dashboard: Allow admins to customize the dashboard layout and metrics.
+   - More Advanced Reporting: Add more complex sales report options (e.g., by category, by customer).
+   -  Data Export: Add options to export data to CSV or other formats.
+   - Internationalization: Support multiple languages.
+
+This is the most complete and updated design document for the admin panel. I have considered all the details from the existing code, the previous design documents, and implemented the improvements.
+

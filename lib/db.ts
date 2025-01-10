@@ -1,65 +1,20 @@
 import pg from 'pg';
 const { Pool } = pg;
 
-console.log('Database connection config:', {
-  user: process.env.DB_USER,
+// Create a new connection pool
+const pool = new Pool({
+  user: 'admin', // Explicitly use admin user
   host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD ? '*****' : undefined,
-  port: process.env.DB_PORT
-});
-
-const dbConfig = {
-  user: process.env.DB_USER || 'admin',
-  host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'ecommerce_db',
-  password: String(process.env.DB_PASSWORD || 'admin123'),
+  password: 'admin123', // Explicit password from .env
   port: parseInt(process.env.DB_PORT || '5432'),
-  ssl: {
-    rejectUnauthorized: false
-  }
-};
-
-console.log('Database connection config:', {
-  ...dbConfig,
-  password: dbConfig.password ? '*****' : undefined
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-const pool = new Pool(dbConfig);
-
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
-
-pool.on('connect', () => {
-  console.log('Connected to database');
-});
-
-interface Category {
-  category_id: number;
-  name: string;
-}
-
-interface BlogPost {
-  post_id: number;
-  title: string;
-}
-
-export const getBlogCategories = async () => {
-  const result = await pool.query('SELECT category_id, name FROM Blog_Categories');
-  return result.rows.map((row: { name: string }) => row.name);
+// Export query method for running queries
+export const db = {
+  query: (text: string, params?: any[]) => pool.query(text, params)
 };
 
-export const getRecentPosts = async () => {
-  const result = await pool.query(`
-    SELECT post_id, title 
-    FROM Blog_Posts 
-    ORDER BY published_at DESC 
-    LIMIT 5
-  `);
-  return result.rows;
-};
-
-export const db = pool;
-export default pool;
+// Export the pool for transactions
+export const getPool = () => pool;

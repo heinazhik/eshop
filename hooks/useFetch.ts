@@ -1,34 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-interface FetchResponse<T> {
-  data: T | null;
-  error: string | null;
-  loading: boolean;
+interface UseFetchOptions<T> {
+  initialData?: T;
+  refetchOnMount?: boolean;
 }
 
-export default function useFetch<T>(url: string): FetchResponse<T> {
-  const [data, setData] = useState<T | null>(null);
+function useFetch<T>(url: string, options?: UseFetchOptions<T>) {
+  const [data, setData] = useState<T | null>(options?.initialData || null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const json = await response.json();
-        setData(json);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const message = `This is an HTTP error: The status is ${response.status}`;
+        throw new Error(message);
       }
-    };
-
-    fetchData();
+      const json = await response.json();
+      setData(json);
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   }, [url]);
 
-  return { data, error, loading };
+  useEffect(() => {
+    if (options?.refetchOnMount !== false) {
+      fetchData();
+    }
+  }, [fetchData, options?.refetchOnMount]);
+
+  return { 
+    data, 
+    loading, 
+    error,
+    refetch: fetchData
+  };
 }
+
+export default useFetch;
