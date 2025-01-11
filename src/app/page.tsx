@@ -1,15 +1,16 @@
 // src/app/page.tsx
-import Hero from '../components/Hero';
-import ProductCard from '../components/ProductCard';
-import Layout from '../components/Layout';
+import Hero from '../components/Hero.tsx';
+import ProductCard from '../components/ProductCard.tsx';
+import Footer from '../components/Footer.tsx';
 import { Product, ApiResponse } from 'types';
+import Navbar from 'components/Navbar'; // Import Navbar
 
 // Fetch featured products from the API
 async function getFeaturedProducts(): Promise<ApiResponse<Product[]>> {
     try {
         // Fetch data from the API route
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/featured-products`, 
+            `${process.env.NEXT_PUBLIC_API_URL}/api/featured-products`,
             { cache: 'no-store' } // Ensure fresh data on every request
         );
 
@@ -51,14 +52,17 @@ export default async function Home() {
 
     // Render the page
     return (
-        <Layout>
+        <div>
+            {/* Navigation Bar */}
+            <Navbar />
+
             {/* Hero section */}
             <Hero />
 
             {/* Featured Products section */}
-            <section className="py-16 px-4 bg-secondary-100">
+            <section className="py-16 px-4 bg-secondary-100 dark:bg-secondary-800">
                 <div className="container mx-auto">
-                    <h2 className="text-3xl font-bold mb-8">Featured Products</h2>
+                    <h2 className="text-3xl font-bold mb-8 text-text-light dark:text-text-dark">Featured Products</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {/* Map over the products and render a ProductCard for each */}
                         {products?.map((product: Product) => (
@@ -78,6 +82,9 @@ export default async function Home() {
                     </div>
                 </div>
             </section>
-        </Layout>
+
+            {/* Footer section */}
+            <Footer />
+        </div>
     );
 }

@@ -49,7 +49,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
   return (
     <div className="container mx-auto p-4">
       <div className="flex flex-wrap items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold text-text">Products</h2>
+        <h2 className="text-2xl font-bold text-text-light dark:text-text-dark">Products</h2>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             {categories.map((category) => (
@@ -58,16 +58,16 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
                   type="checkbox"
                   checked={selectedCategories.includes(category)}
                   onChange={() => handleCategoryChange(category)}
-                  className="form-checkbox h-4 w-4 text-accent"
+                  className="form-checkbox h-4 w-4 text-primary-accent"
                 />
-                <span className="text-text">{category}</span>
+                <span className="text-text-light dark:text-text-dark">{category}</span>
               </label>
             ))}
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-secondary text-text border border-gray-600 rounded-md px-3 py-2"
+            className="bg-secondary-100 dark:bg-secondary-800 text-text-light dark:text-text-dark border border-gray-600 rounded-md px-3 py-2"
           >
             <option value="">Sort by</option>
             <option value="price-asc">Price: Low to High</option>

@@ -1,4 +1,3 @@
-// src/components/Navbar.tsx
 'use client';
 import Link from 'next/link';
 import { ShoppingCartIcon, UserCircleIcon } from '@heroicons/react/24/outline';

@@ -24,6 +24,8 @@ const config: Config = {
         'card-dark': '#1E1E1E',
         'footer-light': '#F1F3F6',
         'footer-dark': '#181818',
+        'secondary-100': '#F1F3F6',
+        'secondary-800': '#1E1E1E'
       },
     },
   },

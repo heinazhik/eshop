@@ -4,37 +4,37 @@ import { faFacebookF, faInstagram, faTwitter } from '@fortawesome/free-brands-sv
 
 const Footer = () => {
   return (
-    <footer className="bg-[#F1F3F6] dark:bg-[#181818] py-12">
+    <footer className="bg-footer-light dark:bg-footer-dark py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[#2C2C2C] dark:text-white">Quick Links</h3>
+            <h3 className="text-lg font-semibold text-text-light dark:text-text-dark">Quick Links</h3>
             <nav className="flex flex-col space-y-2">
               <Link 
                 href="/about" 
-                className="text-[#2C2C2C] dark:text-white hover:text-[#4CAF50] transition-colors"
+                className="text-text-light dark:text-text-dark hover:text-primary-accent transition-colors"
                 aria-label="About Us"
               >
                 About
               </Link>
               <Link 
                 href="/privacy" 
-                className="text-[#2C2C2C] dark:text-white hover:text-[#4CAF50] transition-colors"
+                 className="text-text-light dark:text-text-dark hover:text-primary-accent transition-colors"
                 aria-label="Privacy Policy"
               >
                 Privacy Policy
               </Link>
               <Link 
                 href="/terms" 
-                className="text-[#2C2C2C] dark:text-white hover:text-[#4CAF50] transition-colors"
+                 className="text-text-light dark:text-text-dark hover:text-primary-accent transition-colors"
                 aria-label="Terms of Service"
               >
                 Terms of Service
               </Link>
-              <Link 
+                <Link 
                 href="/contact" 
-                className="text-[#2C2C2C] dark:text-white hover:text-[#4CAF50] transition-colors"
+                 className="text-text-light dark:text-text-dark hover:text-primary-accent transition-colors"
                 aria-label="Contact Us"
               >
                 Contact
@@ -44,13 +44,13 @@ const Footer = () => {
 
           {/* Social Media */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[#2C2C2C] dark:text-white">Follow Us</h3>
+            <h3 className="text-lg font-semibold text-text-light dark:text-text-dark">Follow Us</h3>
             <div className="flex space-x-4">
               <a 
                 href="https://facebook.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-[#2C2C2C] dark:text-white hover:text-[#4CAF50] transition-colors"
+                className="text-text-light dark:text-text-dark hover:text-primary-accent transition-colors"
                 aria-label="Facebook"
               >
                 <FontAwesomeIcon icon={faFacebookF} className="w-6 h-6" />
@@ -59,7 +59,7 @@ const Footer = () => {
                 href="https://instagram.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-[#2C2C2C] dark:text-white hover:text-[#4CAF50] transition-colors"
+                className="text-text-light dark:text-text-dark hover:text-primary-accent transition-colors"
                 aria-label="Instagram"
               >
                 <FontAwesomeIcon icon={faInstagram} className="w-6 h-6" />
@@ -68,7 +68,7 @@ const Footer = () => {
                 href="https://twitter.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-[#2C2C2C] dark:text-white hover:text-[#4CAF50] transition-colors"
+                className="text-text-light dark:text-text-dark hover:text-primary-accent transition-colors"
                 aria-label="Twitter"
               >
                 <FontAwesomeIcon icon={faTwitter} className="w-6 h-6" />
@@ -78,14 +78,14 @@ const Footer = () => {
 
           {/* Newsletter */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[#2C2C2C] dark:text-white">Newsletter</h3>
+            <h3 className="text-lg font-semibold text-text-light dark:text-text-dark">Newsletter</h3>
             <div className="flex flex-col space-y-4">
-              <p className="text-[#2C2C2C] dark:text-white">
+              <p className="text-text-light dark:text-text-dark">
                 Subscribe to our newsletter for updates and offers
               </p>
               <Link
                 href="/newsletter"
-                className="bg-[#4CAF50] text-white px-6 py-2 rounded-md hover:bg-[#45a049] transition-colors text-center"
+                className="bg-primary-accent text-white px-6 py-2 rounded-md hover:bg-secondary-accent transition-colors text-center"
                 aria-label="Go to newsletter page"
               >
                 Manage Newsletter
@@ -96,8 +96,8 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-8 text-center">
-          <p className="text-sm text-[#2C2C2C] dark:text-white">
-            &copy; {new Date().getFullYear()} eShop. All rights reserved.
+          <p className="text-sm text-text-light dark:text-text-dark">
+            © {new Date().getFullYear()} eShop. All rights reserved.
           </p>
         </div>
       </div>
