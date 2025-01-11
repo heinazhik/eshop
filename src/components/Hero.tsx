@@ -1,3 +1,4 @@
+// src/components/Hero.tsx
 import Link from 'next/link';
 
 const Hero = () => {

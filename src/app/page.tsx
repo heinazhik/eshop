@@ -1,9 +1,8 @@
 // src/app/page.tsx
-import Hero from '../components/Hero.tsx';
-import ProductCard from '../components/ProductCard.tsx';
-import Footer from '../components/Footer.tsx';
+import Hero from '../components/Hero';
+import ProductCard from '../components/ProductCard';
+import Layout from '../components/Layout';
 import { Product, ApiResponse } from 'types';
-import Navbar from 'components/Navbar';
 
 // Fetch featured products from the API
 async function getFeaturedProducts(): Promise<ApiResponse<Product[]>> {
@@ -52,9 +51,8 @@ export default async function Home() {
 
     // Render the page
     return (
-        <div>
+        <Layout>
             {/* Hero section */}
-            <Navbar />
             <Hero />
 
             {/* Featured Products section */}
@@ -80,9 +78,6 @@ export default async function Home() {
                     </div>
                 </div>
             </section>
-
-            {/* Footer section */}
-            <Footer />
-        </div>
+        </Layout>
     );
 }
