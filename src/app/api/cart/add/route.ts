@@ -1,10 +1,22 @@
-import { db } from '@/lib/db';
+import { db } from '@/lib/db.ts';
 import { NextResponse } from 'next/server';
+import { auth } from '@/utils/auth'; // Assuming you have an auth utility
 
-const CUSTOMER_ID = 1; // Use a dynamic way to identify user later
 const CART_STATUS = 'Pending';
 
+// Helper function to get the current user ID
+async function getCurrentUserId() {
+  const session = await auth();
+  return session?.user?.id; // Adjust based on your actual session structure
+}
+
 export async function POST(request: Request) {
+  const customerId = await getCurrentUserId();
+
+  if (!customerId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { product_id, quantity } = await request.json();
 
   try {
@@ -20,7 +32,7 @@ export async function POST(request: Request) {
       AND status = $2 
       LIMIT 1;
     `;
-    const pendingOrderResult = await db.query(pendingOrderQuery, [CUSTOMER_ID, CART_STATUS]);
+    const pendingOrderResult = await db.query(pendingOrderQuery, [customerId, CART_STATUS]);
 
     let orderId;
 
@@ -73,7 +85,7 @@ export async function POST(request: Request) {
         VALUES ($1, $2, $3, NOW())
         RETURNING order_id;
       `;
-      const createOrderResult = await db.query(createOrderQuery, [CUSTOMER_ID, CART_STATUS, 0]);
+      const createOrderResult = await db.query(createOrderQuery, [customerId, CART_STATUS, 0]);
       orderId = createOrderResult.rows[0].order_id;
 
       // Add the product to the new order
@@ -97,7 +109,7 @@ export async function POST(request: Request) {
     }
 
     // Fetch the updated cart items
-    const updatedCartItems = await fetchCartItems(CUSTOMER_ID, CART_STATUS);
+    const updatedCartItems = await fetchCartItems(customerId, CART_STATUS);
     return NextResponse.json({ data: updatedCartItems });
   } catch (error) {
     console.error('Error adding to cart:', error);
