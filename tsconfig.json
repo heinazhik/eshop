@@ -8,23 +8,23 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "ESNext",
-    "moduleResolution": "NodeNext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
+    "baseUrl": "src",
     "types": ["next", "node"],
     "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {
-      "@/*": ["./*"], // The crucial addition
-      "*": ["./src/*"],
-      "types/*": ["./types/*"],
-      "hooks/*": ["./hooks/*"],
-      "utils/*": ["./utils/*"],
-      "lib/*": ["./lib/*"]
+      "@/*": ["./src/*"],
+      "@/components/*": ["./components/*"],
+      "@/types/*": ["./types/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/utils/*": ["./utils/*"],
+      "@/lib/*": ["./lib/*"]
     },
     "plugins": [
       {

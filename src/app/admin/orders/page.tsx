@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useState, useCallback, useMemo } from 'react';
 import OrderTable from '../../../components/Orders/OrderTable.tsx';
 import OrderDetails from '../../../components/Orders/OrderDetails.tsx';
 import OrderFilter from '../../../components/Orders/OrderFilter.tsx';
 import useFetch from '../../../hooks/useFetch.ts';
-import { Order } from '../../../types';
+import { Order } from '../../../types.js';
 
 const OrdersPanel: React.FC = () => {
   const { data: orders, error, loading } = useFetch<Order[]>('/api/orders');

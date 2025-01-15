@@ -1,143 +1,86 @@
-import { db } from '@/lib/db.ts';
+import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { auth } from '@/utils/auth'; // Assuming you have an auth utility
+import { getToken } from '@/utils/auth';
 
-const CART_STATUS = 'Pending';
-
-// Helper function to get the current user ID
-async function getCurrentUserId() {
-  const session = await auth();
-  return session?.user?.id; // Adjust based on your actual session structure
-}
-
-export async function POST(request: Request) {
-  const customerId = await getCurrentUserId();
+export async function POST(req: Request) {
+  const customerId = await getToken();
 
   if (!customerId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { product_id, quantity } = await request.json();
-
   try {
-    // Validate product_id and quantity
-    if (!product_id || !quantity) {
-      return NextResponse.json({ error: 'Product ID and quantity are required' }, { status: 400 });
+    const { product_id, quantity } = await req.json();
+
+    if (!product_id || typeof product_id !== 'number' || !quantity) {
+      return NextResponse.json(
+        { error: 'Valid numeric Product ID and quantity are required' },
+        { status: 400 }
+      );
     }
 
-    // Check if a pending order exists for the current user
-    const pendingOrderQuery = `
-      SELECT order_id FROM orders 
-      WHERE customer_id = $1 
-      AND status = $2 
-      LIMIT 1;
-    `;
-    const pendingOrderResult = await db.query(pendingOrderQuery, [customerId, CART_STATUS]);
+    if (quantity <= 0) {
+      return NextResponse.json(
+        { error: 'Quantity must be a positive number' },
+        { status: 400 }
+      );
+    }
+
+    // Check for existing pending order
+    const pendingOrder = await db.query(
+      `SELECT order_id FROM orders 
+       WHERE customer_id = $1 AND status = 'pending' 
+       LIMIT 1`,
+      [customerId]
+    );
 
     let orderId;
-
-    if (pendingOrderResult.rows.length > 0) {
-      // Use the existing pending order
-      orderId = pendingOrderResult.rows[0].order_id;
-
-      // Check if the product is already in the cart
-      const existingItemQuery = `
-        SELECT order_item_id 
-        FROM order_items 
-        WHERE order_id = $1 
-        AND product_id = $2;
-      `;
-      const existingItemResult = await db.query(existingItemQuery, [orderId, product_id]);
-
-      if (existingItemResult.rows.length > 0) {
-        // Update the quantity of the existing item
-        const orderItemId = existingItemResult.rows[0].order_item_id;
-        const updateOrderItemQuery = `
-          UPDATE order_items
-          SET quantity = quantity + $1
-          WHERE order_item_id = $2;
-        `;
-        await db.query(updateOrderItemQuery, [quantity, orderItemId]);
-      } else {
-        // Add the product to the cart
-        const productPriceQuery = `
-          SELECT price 
-          FROM products 
-          WHERE product_id = $1;
-        `;
-        const priceResult = await db.query(productPriceQuery, [product_id]);
-        const price = priceResult.rows[0]?.price;
-
-        if (!price) {
-          return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-        }
-
-        const insertOrderItemQuery = `
-          INSERT INTO order_items (order_id, product_id, quantity, price)
-          VALUES ($1, $2, $3, $4);
-        `;
-        await db.query(insertOrderItemQuery, [orderId, product_id, quantity, price]);
-      }
+    if (pendingOrder.rows.length > 0) {
+      orderId = pendingOrder.rows[0].order_id;
     } else {
-      // Create a new pending order
-      const createOrderQuery = `
-        INSERT INTO orders (customer_id, status, total_amount, created_at)
-        VALUES ($1, $2, $3, NOW())
-        RETURNING order_id;
-      `;
-      const createOrderResult = await db.query(createOrderQuery, [customerId, CART_STATUS, 0]);
-      orderId = createOrderResult.rows[0].order_id;
-
-      // Add the product to the new order
-      const productPriceQuery = `
-        SELECT price 
-        FROM products 
-        WHERE product_id = $1;
-      `;
-      const priceResult = await db.query(productPriceQuery, [product_id]);
-      const price = priceResult.rows[0]?.price;
-
-      if (!price) {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-      }
-
-      const insertOrderItemQuery = `
-        INSERT INTO order_items (order_id, product_id, quantity, price)
-        VALUES ($1, $2, $3, $4);
-      `;
-      await db.query(insertOrderItemQuery, [orderId, product_id, quantity, price]);
+      // Create new pending order
+      const newOrder = await db.query(
+        `INSERT INTO orders 
+         (customer_id, total_amount, status, created_at)
+         VALUES ($1, 0, 'pending', NOW())
+         RETURNING order_id`,
+        [customerId]
+      );
+      orderId = newOrder.rows[0].order_id;
     }
 
-    // Fetch the updated cart items
-    const updatedCartItems = await fetchCartItems(customerId, CART_STATUS);
-    return NextResponse.json({ data: updatedCartItems });
-  } catch (error) {
-    console.error('Error adding to cart:', error);
-    return NextResponse.json({ error: 'Failed to add item to cart' }, { status: 500 });
-  }
-}
+    // Verify product exists
+    const productCheck = await db.query(
+      `SELECT product_id FROM products WHERE product_id = $1`,
+      [product_id]
+    );
+    
+    if (productCheck.rowCount === 0) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      );
+    }
 
-// Helper function to fetch updated cart items
-async function fetchCartItems(customer_id: number, cart_status: string) {
-  const result = await db.query(
-    `
-    SELECT
-      oi.product_id,
-      p.name,
-      oi.quantity,
-      oi.price,
-      p.image_url
-    FROM
-      orders o
-    JOIN
-      order_items oi ON o.order_id = oi.order_id
-    JOIN
-      products p ON oi.product_id = p.product_id
-    WHERE
-      o.customer_id = $1 
-      AND o.status = $2;
-    `,
-    [customer_id, cart_status]
-  );
-  return result.rows;
+    // Add item to order
+    const result = await db.query(
+      `INSERT INTO order_items 
+       (order_id, product_id, quantity, price)
+       VALUES ($1, $2, $3, 
+         (SELECT price FROM products WHERE product_id = $2))
+       RETURNING *`,
+      [orderId, product_id, quantity]
+    );
+
+    return NextResponse.json(result.rows[0], { status: 201 });
+  } catch (error) {
+    console.error('Error adding to cart:', error instanceof Error ? error.message : error);
+    return NextResponse.json(
+      { 
+        error: 'Could not add item to cart',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
 }

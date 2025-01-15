@@ -56,7 +56,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer }) => {
               </tr>
             </thead>
             <tbody>
-              {customerOrders.map((order) => (
+              {customerOrders.map((order: Order) => (
                 <tr key={order.order_id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                   <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{order.order_id}</td>
                   <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">

@@ -1,11 +1,11 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { auth } from '@/utils/auth'; // Import the auth utility
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/utils/auth';
 
-// Helper function to get the current user ID
 async function getCurrentUserId() {
-  const session = await auth();
-  return session?.user?.id; // Adjust based on your actual session structure
+  const session = await getServerSession(authOptions);
+  return session?.user?.id;
 }
 
 export async function GET() {
@@ -35,6 +35,10 @@ export async function GET() {
     const result = await db.query(query, [customerId]);
     return NextResponse.json({ data: result.rows });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch cart items' }, { status: 500 });
+    console.error('Error fetching cart items:', error instanceof Error ? error.message : error);
+    return NextResponse.json({ 
+      error: 'Failed to fetch cart items',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

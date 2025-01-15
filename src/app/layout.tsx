@@ -1,14 +1,8 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import Navbar from '../components/Navbar';
+'use client';
 
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'eShop - Modern E-commerce',
-  description: 'A modern, minimalist e-commerce website built with Next.js 13+ and Tailwind CSS.',
-};
+import { SessionProvider } from 'next-auth/react';
+import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function RootLayout({
   children,
@@ -17,9 +11,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark`}>
-        <Navbar />
-        {children}
+      <body className="min-h-screen bg-gray-50">
+        <SessionProvider>
+          <ErrorBoundary>
+            <Navbar />
+            <main className="container mx-auto px-4 py-8">
+              {children}
+            </main>
+          </ErrorBoundary>
+        </SessionProvider>
       </body>
     </html>
   );

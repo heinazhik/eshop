@@ -1,17 +1,18 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import { Product } from '../../../types.ts';
 import Image from 'next/image';
-import { Product } from 'types';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ProductDetailClientProps {
   product: Product;
 }
 
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
+  const [quantity, setQuantity] = useState(1);
   const router = useRouter();
 
-  // Handle "Add to Cart" button click
   const handleAddToCart = async () => {
     try {
       const response = await fetch('/api/cart/add', {
@@ -19,44 +20,75 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ product_id: product.product_id, quantity: 1 }),
+        body: JSON.stringify({
+          product_id: product.product_id,
+          quantity: quantity,
+        }),
       });
 
-      if (response.ok) {
-        router.push('/cart'); // Redirect to the cart page
-      } else {
-        console.error('Failed to add to cart');
+      if (!response.ok) {
+        throw new Error('Failed to add to cart');
       }
+
+      router.refresh();
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
   };
 
-  // Convert price to a number if it's a string
-  const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
-
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-4xl font-bold">{product.name}</h1>
-      <div className="flex flex-col md:flex-row gap-8">
-        <Image
-          src={product.image_url || '/placeholder.jpg'}
-          alt={product.name}
-          width={500}
-          height={500}
-          className="w-full h-96 object-contain md:w-1/2"
-        />
-        <div className="md:w-1/2">
-          <p className="text-green-600 text-2xl mt-2">${price?.toFixed(2)}</p>
-          <p className="mt-4">{product.description}</p>
-          <div className="mt-6">
-            <button
-              className="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </button>
+    <div className="container mx-auto py-10 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Product Image */}
+        <div className="relative aspect-square">
+          <Image
+            src={product.image_url || '/placeholder.jpg'}
+            alt={product.name}
+            fill
+            className="object-cover rounded-lg"
+            priority
+          />
+        </div>
+
+        {/* Product Details */}
+        <div className="space-y-6">
+          <h1 className="text-4xl font-bold">{product.name}</h1>
+          
+          {/* Price and Stock */}
+          <div className="text-2xl font-semibold">
+            ${product.price.toFixed(2)}
+            <span className="text-sm text-gray-500 ml-2">
+              ({product.stock_quantity} in stock)
+            </span>
           </div>
+
+          {/* Description */}
+          <p className="text-gray-600">{product.description}</p>
+
+          {/* Quantity Selector */}
+          <div className="flex items-center space-x-4">
+            <label htmlFor="quantity" className="font-medium">
+              Quantity:
+            </label>
+            <input
+              type="number"
+              id="quantity"
+              min="1"
+              max={product.stock_quantity}
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="w-20 px-3 py-2 border rounded"
+            />
+          </div>
+
+          {/* Add to Cart Button */}
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock_quantity === 0}
+            className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {product.stock_quantity > 0 ? 'Add to Cart' : 'Out of Stock'}
+          </button>
         </div>
       </div>
     </div>

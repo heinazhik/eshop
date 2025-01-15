@@ -1,29 +1,40 @@
 'use client';
-import Link from 'next/link';
+
 import { ShoppingCartIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 const Navbar = () => {
   const [cartItemCount, setCartItemCount] = useState(0);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchCartItemCount = async () => {
-      try {
-        const response = await fetch('/api/cart');
-        if (response.ok) {
-          const data = await response.json();
-          // Safely access data.data and use reduce, defaulting to 0 if data or data.data is undefined
-          setCartItemCount(data?.data?.reduce((acc: number, item: { quantity: number }) => acc + item.quantity, 0) || 0);
-        } else {
-          console.error('Failed to fetch cart items');
+      if (session?.user) {
+        try {
+          const response = await fetch('/api/cart', {
+            credentials: 'include',
+          });
+          if (response.ok) {
+            const data = await response.json();
+            // Safely access data.data and use reduce, defaulting to 0 if data or data.data is undefined
+            setCartItemCount(data?.data?.reduce((acc: number, item: { quantity: number }) => acc + item.quantity, 0) || 0);
+          } else {
+            console.error('Failed to fetch cart items');
+            setCartItemCount(0); // Set cart to 0 on failure
+          }
+        } catch (error) {
+          console.error('Error fetching cart items:', error);
+          setCartItemCount(0); // Set cart to 0 on error
         }
-      } catch (error) {
-        console.error('Error fetching cart items:', error);
+      } else {
+        setCartItemCount(0); // Set cart to 0 if user is not logged in
       }
     };
 
     fetchCartItemCount();
-  }, []);
+  }, [session]);
 
   return (
     <nav className="bg-background-light dark:bg-background-dark p-4 shadow-sm">

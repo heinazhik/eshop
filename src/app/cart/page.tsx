@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
 
 interface CartItem {
   product_id: number;
@@ -20,19 +21,27 @@ const CartPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [placingOrder, setPlacingOrder] = useState(false);
   const router = useRouter();
+  const { data: session } = useSession();
 
   // Fetch cart items on component mount
   useEffect(() => {
     const fetchCartItems = async () => {
       setLoading(true);
       try {
-        const response = await fetch('/api/cart');
+        const response = await fetch('/api/cart', {
+      headers: session?.user ? {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.user.id}`
+      } : {
+        'Content-Type': 'application/json'
+      }
+    });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         setCartItems(data?.data || []);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching cart items:', error);
         setError('Failed to load cart items.');
       } finally {
@@ -41,15 +50,18 @@ const CartPage: React.FC = () => {
     };
 
     fetchCartItems();
-  }, []);
+  }, [session]);
 
   // Handle quantity change
   const handleQuantityChange = async (productId: number, quantity: number) => {
     try {
       const response = await fetch('/api/cart/update', {
         method: 'POST',
-        headers: {
+        headers: session?.user ? {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.user.id}`
+        } : {
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ product_id: productId, quantity }),
       });
@@ -62,7 +74,7 @@ const CartPage: React.FC = () => {
       setCartItems(cartItems.map(item =>
         item.product_id === productId ? { ...item, quantity } : item
       ));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating cart:', error);
       setError('Failed to update cart.');
     }
@@ -73,9 +85,12 @@ const CartPage: React.FC = () => {
     try {
       const response = await fetch('/api/cart/remove', {
         method: 'DELETE',
-          headers: {
+          headers: session?.user ? {
             'Content-Type': 'application/json',
-        },
+            'Authorization': `Bearer ${session.user.id}`
+          } : {
+            'Content-Type': 'application/json'
+          },
         body: JSON.stringify({ productId }),
       });
 
@@ -85,7 +100,7 @@ const CartPage: React.FC = () => {
 
       // Update the local state
       setCartItems(cartItems.filter(item => item.product_id !== productId));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error removing item:', error);
       setError('Failed to remove item.');
     }
@@ -114,8 +129,11 @@ const CartPage: React.FC = () => {
 
       const response = await fetch('/api/orders', {
         method: 'POST',
-        headers: {
+        headers: session?.user ? {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.user.id}`
+        } : {
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(orderData),
       });

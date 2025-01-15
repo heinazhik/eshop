@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Customer } from '../../src/types.js';
-import Input from '../UI/Input.js';
+import Input from '../UI/Input.tsx';
 
 interface CustomerFilterProps {
   customers: Customer[];
@@ -65,6 +65,7 @@ const CustomerFilter: React.FC<CustomerFilterProps> = ({ customers, onFilter }) 
           className="border rounded p-2 w-full bg-[var(--card-light)] text-[var(--text-light)] dark:bg-[var(--card-dark)] dark:text-[var(--text-dark)]"
           value={subscriptionFilter}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSubscriptionFilter(e.target.value)}
+          aria-label="Filter by Subscription Status"
         >
           <option value="">Filter by Subscription Status</option>
           {subscriptionOptions.map((status) => (
