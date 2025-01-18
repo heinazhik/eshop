@@ -15,6 +15,7 @@ $ PGPASSWORD=admin123 psql -U admin -h localhost -d ecommerce_db -c '\dt'
  public | subscription_history | table | admin
 (11 rows)
 
+pete@pop-os:~/cline/eshop
 $ PGPASSWORD=admin123 psql -U admin -h localhost -d ecommerce_db -Atc "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'" | while read table; do
   echo "Structure of table: $table"
   PGPASSWORD=admin123 psql -U admin -h localhost -d ecommerce_db -c "\d $table"
@@ -111,6 +112,7 @@ Structure of table: products
  description    | text                        |           |          | 
  created_at     | timestamp without time zone |           |          | now()
  image_url      | text                        |           |          | 
+ featured       | boolean                     |           |          | false
 Indexes:
     "products_pkey" PRIMARY KEY, btree (product_id)
     "idx_products_category" btree (category)
